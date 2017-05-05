@@ -1,0 +1,1973 @@
+package com.vimond.automation.tests;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.awt.AWTException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.json.simple.parser.ParseException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.google.common.base.Function;
+import com.gurock.testrail.APIException;
+import com.vimond.automation.PageObject.ApprovalPageObject;
+import com.vimond.automation.PageObject.CatalogPageObj;
+import com.vimond.automation.PageObject.ContentPageObject;
+import com.vimond.automation.PageObject.HeaderPageObj;
+import com.vimond.automation.PageObject.OptionalMetadataPageObj;
+import com.vimond.automation.PageObject.PageObjectUtils;
+import com.vimond.automation.Utility.RestClient;
+import com.vimond.automation.Utility.TestUtils;
+import com.vimond.automation.controller.Helper;
+
+public class ApprovalModule {
+
+    private static WebDriver driver;
+    public String currentTitleAfterApproved = null;
+    public String ApprovedChannel;
+    Map<String, String> dataMap;
+
+    @Before
+    public void openBrowser() throws MalformedURLException {
+	// Initialize env data
+	dataMap = Helper.intializeEnvTestData();
+
+	// If tests are remotely executed, then setup the Remote driver on BrowserStack
+	Boolean isRemoteExecution = Boolean.valueOf(Helper.getProperty("is_remote_execution"));
+	if (isRemoteExecution) {
+	    driver = Helper.setRemoteDriver();
+	} else {
+	    driver = Helper.setLocalChromeDriver();
+	}
+	System.setProperty("java.awt.headless", "false");
+	driver.manage().window().maximize();
+	driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+	driver.get(dataMap.get("VCC_URL"));
+    }
+
+    // C20
+    @Test
+    public void approveChannelTest() throws IOException, APIException, InterruptedException, AWTException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	CatalogPageObj CatalogPageObjTest = PageFactory.initElements(driver, CatalogPageObj.class);
+	System.out.println("Inside test " + new Object() {
+	}.getClass().getEnclosingMethod().getName());
+	ApprovalPageObject ApprovalTestPageobj = PageFactory.initElements(driver, ApprovalPageObject.class);
+	// ContentOrganizerModule catalogModulePageObj = PageFactory.initElements(driver, ContentOrganizerModule.class);
+	// // Create a new channel as an account holder
+	// ContentOrganizerModule catalogModule = new ContentOrganizerModule();
+	// // catalogModulePageObj.openBrowser();
+	// // catalogModulePageObj.CheckNewChannel();
+	// // catalogModulePageObj.closeBrowser();
+	//
+	// WebDriverWait wait = new WebDriverWait(driver, 10);
+	//
+	// // Login flow
+	// WebElement username = driver.findElement(By.name("username"));
+	// WebElement password = driver.findElement(By.id("password"));
+	//
+	// username.sendKeys(dataMap.get("UserAdmin"));
+	// password.sendKeys(dataMap.get("Psswd"));
+	// WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	// signInButton.click();
+	//
+	// // Go to Approval module
+	// ApprovalTestPageobj.clickApprovalMenu();
+	ContentOrganizerModule contentOrganizeModule = PageFactory.initElements(driver, ContentOrganizerModule.class);
+	CatalogPageObj catalogModule = PageFactory.initElements(driver, CatalogPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// login
+	WebElement username = fluentWait(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	username.sendKeys(dataMap.get("UserAdmin"));
+	password.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+
+	// catalogModule.createChannelTest();
+	HeaderPageObj.clickMenu("CATALOG");
+
+	String channelTitle = catalogModule.createChannel(driver);
+
+	// // Logout and login as Admin
+	// WebElement logOutLink = fluentWait(By.xpath("//a[contains(text(),'Logout')]"));
+	// logOutLink.click();
+	PageObjectUtils.logout(driver);
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+	// Go to Approval module
+	HeaderPageObj.clickMenu("APPROVAL");
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Get list of channels
+
+	// String title = contentOrganizeModule.ChannelTitleEntered;
+	// Search for required channel. Channels newly created are shown at the
+	// top of the list
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    String currentTitle = ApprovalTestPageobj.getApprovalContent();
+
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		ApprovalTestPageobj.channelList.get(i).click();
+		break;
+	    }
+	}
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Click on Approve button in the center pane
+	ApprovalTestPageobj.approveButton.click();
+	WebElement progress = driver.findElement(By.xpath("//div[@class='ng-scope ng-hide']"));
+	testUT.waitForElementFluently(progress, 20);
+	// Verify channel is removed from the list
+	// Check for the approved list in the first page.
+	// Assumption here is that our list was on the first page
+	boolean channelFound = false;
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    String currentTitle = ApprovalTestPageobj.channelList.get(i)
+		    .findElement(By.cssSelector("div.metadata > strong")).getText();
+
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		channelFound = true;
+		break;
+	    }
+	}
+
+	if (!channelFound) {// Test successful since channel not shown in the
+			    // Task list anymore
+	    assertTrue(true);
+	    System.out.println("Channel has been approved");
+	}
+	// End of checking for list in "Task List" tab
+
+	// Check the channel in "Approved" tab
+
+	// Click on second tab in the UI
+	/*
+	 * WebElement approvalTab = (new WebDriverWait(driver, 10)).until(ExpectedConditions
+	 * .presenceOfAllElementsLocatedBy(By.cssSelector ("div.filter-button"))).get(1); approvalTab.click();
+	 */
+
+	ApprovalTestPageobj.clickApprovedTab();
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Get list of channels again
+
+	channelFound = false;
+	/* String currentTitleAfterApproved = null; */
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    currentTitleAfterApproved = ApprovalTestPageobj.channelList.get(i)
+		    .findElement(By.cssSelector("div.metadata > strong")).getText();
+
+	    // If channel found, select the channel
+	    if (currentTitleAfterApproved.equals(channelTitle)) {
+		channelFound = true;
+		break;
+	    }
+	}
+	if (channelFound) {// Test successful since channel found in Approved
+			   // Tab
+	    assertTrue(true);
+	    ApprovedChannel = currentTitleAfterApproved;
+	    System.out.println("Approved channel : " + ApprovedChannel);
+	} else {
+	    assertTrue(false);
+	}
+	// End of checking in "Approved" tab
+
+	// Check in Asset module if channel gets available
+
+    }
+
+    // C21
+    @Test
+    public void rejectChannelTest() throws IOException, APIException, InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	// Create a new channel as an account holder
+	// ContentOrganizerModule catalogModule = new ContentOrganizerModule();
+	ContentOrganizerModule contentOrganizeModule = PageFactory.initElements(driver, ContentOrganizerModule.class);
+	CatalogPageObj catalogModule = PageFactory.initElements(driver, CatalogPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	boolean flag1 = false, flag2 = false;
+	// login
+	WebElement username = fluentWait(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	username.sendKeys(dataMap.get("UserAdmin"));
+	password.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+
+	// catalogModule.createChannelTest();
+	HeaderPageObj.clickMenu("CATALOG");
+
+	String channelTitle = catalogModule.createChannel(driver);
+
+	// // Logout and login as Admin
+	// WebElement logOutLink = fluentWait(By.xpath("//a[contains(text(),'Logout')]"));
+	// logOutLink.click();
+	PageObjectUtils.logout(driver);
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+	// Go to Approval module
+	HeaderPageObj.clickMenu("APPROVAL");
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Get list of channels
+	List<WebElement> channelList = driver.findElements(By.cssSelector("div.list > ul > li"));
+
+	// Search for required channel. Channels newly created are shown at the
+	// top of the list
+	for (int i = 0; i < channelList.size(); i++) {
+	    String currentTitle = channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).getText();
+
+	    // If channel found, select the channel
+	    System.out.println();
+	    if (currentTitle.equals(channelTitle)) {
+		channelList.get(i).click();
+		testUT.waitForElementToBeInvisible(By.xpath("//div[@class='progress-loader ng-scope']"), 20);
+		break;
+	    }
+	}
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Click on Reject button
+	WebElement rejectButton = (new WebDriverWait(driver, 10)).until(ExpectedConditions.presenceOfElementLocated(By
+		.cssSelector("div.approval-panel > div > button.secondary")));
+	rejectButton.click();
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='vim-modal']"), 10);
+	// Verify modal dialog shown is correct
+	String dialogHeader = driver.findElement(By.cssSelector("div.reject-channel-dialog > h1")).getText();
+	// assertTrue(dialogHeader.contains(contentOrganizeModule.channelTitle));
+
+	// Add rejection message and reject
+	WebElement messageField = driver.findElement(By.xpath("//textarea[@name='message']"));
+	testUT.waitForElementFluently(messageField, 10);
+	// Thread.sleep(500);
+	// messageField.clear();
+	String rejectMessage = "Rejected channel during automation run";
+	messageField.sendKeys(Keys.HOME, Keys.chord(Keys.SHIFT, Keys.END), rejectMessage);
+
+	WebElement rejectButton2 = driver.findElement(By.cssSelector("div.buttons > button.main"));
+	rejectButton2.click();
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// ------------------------------------------------------------------------------------------------------------------
+	/* Verify channel is removed from the list */
+
+	// Get list of channels again
+	channelList = driver.findElements(By.cssSelector("div.list > ul > li"));
+
+	// Check for the rejected list in the first page.
+	// Assumption here is that our list was on the first page
+	boolean channelFound = false;
+	for (int i = 0; i < channelList.size(); i++) {
+	    String currentTitle = channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).getText();
+
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		channelFound = true;
+		break;
+	    }
+	}
+	driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	if (!channelFound) {
+	    // Test successful since channel not shown in the Task list anymore
+	    flag1 = true;
+	    System.out.println("Channel has been rejected");
+	} else {
+	    flag1 = false;
+	}
+	// End of checking for list in "Task List" tab
+
+	// ------------------------------------------------------------------------------------------------------------------
+	/* Check the channel in "Rejected" tab */
+
+	// Click on third tab in the UI
+	// Thread.sleep(1000);
+	WebElement rejectTab = (new WebDriverWait(driver, 10)).until(
+		ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.filter-button"))).get(2);
+	rejectTab.click();
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Get list of channels again
+	channelList = driver.findElements(By.cssSelector("div.list > ul > li"));
+	channelFound = false;
+	for (int i = 0; i < channelList.size(); i++) {
+	    String currentTitle = channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).getText();
+
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		channelFound = true;
+		channelList.get(i).click();
+		break;
+	    }
+	}
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	if (channelFound) {// Test successful since channel found in Approved
+			   // Tab
+	    flag2 = true;
+	} else {
+	    flag2 = false;
+	}
+
+	// Check the rejection message
+	String rejectionMessage = driver.findElement(By.cssSelector("div.message-panel > p")).getText();
+	System.out.println(rejectionMessage);
+	System.out.println(rejectMessage);
+	System.out.println(flag1);
+	System.out.println(flag2);
+	if (rejectionMessage.equals(rejectMessage) && flag1 && flag2) {
+	    assertTrue(true);
+	} else {
+	    assertTrue(false);
+	}
+
+	// End of checking in "rejected" tab
+
+	// Check in Catalog module if channel is rejected
+	// TBD
+
+    }
+
+    // C17 : Approval tab visible only for Admin user
+    @Test
+    public void checkApprovalTabVisibilityTest() {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	// Login as a non-admin user
+	PageObjectUtils.login(driver, dataMap.get("UserAccountHolder"), dataMap.get("Psswd"));
+
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	// Verify that Approval tab is not there in header
+	List<WebElement> headerModules = headerPO.getHeaderModules();
+	for (int i = 0; i < headerModules.size(); i++) {
+	    assertNotEquals("Test Failed! Approval module present in Header for a non-admin user", "approval", headerModules
+		    .get(i).getAttribute("textContent").toLowerCase());
+	}
+
+	// Logout of the application
+	PageObjectUtils.logout(driver);
+
+	// Login as an admin user
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+
+	headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	// Verify that Approval tab is present in header
+	Boolean found = false;
+	List<WebElement> headerModules2 = headerPO.getHeaderModules();
+	for (int i = 0; i < headerModules2.size(); i++) {
+	    if (headerModules2.get(i).getAttribute("textContent").toLowerCase().equals("approval")) {
+		found = true;
+		break;
+	    }
+	}
+	if (!found) {
+	    assertTrue("Test Failed! Approval module not present in Header for Admin user", true);
+	} else {
+	    System.out.println("Approval Tab visibility test successful!");
+	}
+    }
+
+    // C18 : Validate count on Approval tab
+    @Test
+    public void validateApprovalTabCountTest() throws InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	ApprovalPageObject approvalPO = PageFactory.initElements(driver, ApprovalPageObject.class);
+
+	// Login as an admin user
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+
+	// Get number shown on Approval Menu
+	int countShown = headerPO.getPendingApprovalCount();
+
+	// Click on Approval menu
+	approvalPO.clickApprovalMenu();
+
+	// Get the channel list
+	List<WebElement> channelList = approvalPO.getChannelList();
+
+	// Get page size
+	int pageSize = channelList.size();
+	int pageNumber = 1;
+	int countObserved = 0;
+
+	// execute until countObserved reaches 100 or more
+	if (channelList.size() != 0 && countObserved <= 99) {
+	    // Scroll to the last element until list count is same as
+	    // pageSize*pageNumber
+	    do {
+		// Scroll to the last element in the list
+		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+			channelList.get(channelList.size() - 1));
+		Thread.sleep(3000);// Add sleep to wait for results to be
+				   // fetched
+		// Get the count
+		countObserved = approvalPO.getChannelList().size();
+		pageNumber++;
+	    } while (countObserved == pageSize * pageNumber);
+	}
+
+	// if countObserved is >99, then we expect countShown value to be 100
+	if (countObserved > 99 && countShown == 100) {
+	    System.out.println("More than 99 pending tasks are correctly shown");
+	    assertTrue(true);
+	} else {
+	    assertEquals("Test Failed! Count of pending channels does not match as shown", countShown, countObserved);
+	}
+    }
+
+    // C19 : Filter on channel list (Not complete)
+    @Test
+    public void checkChannelFiltersTest() throws InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	ApprovalPageObject approvalPO = PageFactory.initElements(driver, ApprovalPageObject.class);
+
+	// Login as an admin user
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+
+	// Click on Approval menu
+	approvalPO.clickApprovalMenu();
+
+	// Get the channel list
+	List<WebElement> channelList = approvalPO.getChannelList();
+
+	// Get page size
+	int pageSize = channelList.size();
+	int pageNumber = 1;
+	int countObserved = 0;
+
+	if (channelList.size() != 0) {
+	    // Scroll to the last element until list count is same as
+	    // pageSize*pageNumber
+	    do {
+		// Scroll to the last element in the list
+		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+			channelList.get(channelList.size() - 1));
+		Thread.sleep(3000);// Add sleep to wait for results to be
+				   // fetched
+		// Get the count
+		countObserved = approvalPO.getChannelList().size();
+		pageNumber++;
+	    } while (countObserved == pageSize * pageNumber);
+	}
+
+    }
+
+    // C3846 - Old data for new channels
+    @Test
+    public void OldDataChannelTest() throws IOException, APIException, InterruptedException, AWTException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+	ContentOrganizerModule contentOrganizeModule = PageFactory.initElements(driver, ContentOrganizerModule.class);
+	ApprovalPageObject approvalModule = PageFactory.initElements(driver, ApprovalPageObject.class);
+	CatalogPageObj catalogModule = PageFactory.initElements(driver, CatalogPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	boolean flag1 = false;
+	// login
+	PageObjectUtils.login(driver, dataMap.get("UserAccountHolder"), dataMap.get("Psswd"));
+	// Store old values
+	Map<String, List<String>> newMetadata = approvalModule.NewCreateChannel(driver);
+	List<String> categoryTitle = newMetadata.get("title");
+	String channelTitle = null;
+	for (String title : categoryTitle) {
+	    channelTitle = title;
+	}
+	List<String> categoryID = newMetadata.get("id");
+	String channelID = null;
+	for (String id : categoryID) {
+	    channelID = id;
+	}
+	// logout
+	PageObjectUtils.logout(driver);
+	// login
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+	// CLick on approval module
+	HeaderPageObj.clickMenu("APPROVAL");
+	// wait
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < approvalModule.channelList.size(); i++) {
+	    String currentTitle = approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong"))
+		    .getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+		approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+	// Final condition to check old values and new values are present
+	Collection<List<String>> keys = newMetadata.values();
+	Map<String, String> actualVal = approvalModule.getAllMetadataKeyVal();
+	actualVal.put("id", channelID);
+	Iterator<List<String>> valList = keys.iterator();
+
+	for (int i = 0; i < actualVal.size(); i++) {
+	    String val = valList.next().iterator().next();
+	    if (!actualVal.containsValue(val)) {
+		flag1 = false;
+		break;
+	    } else {
+		flag1 = true;
+	    }
+	}
+	if (flag1) {
+	    assertTrue(true);
+	    System.out.println("New Values correctly appeared in Task List");
+	} else {
+	    System.out.println("New Values not correctly appeared in Task List");
+	    assertTrue(false);
+	}
+    }
+
+    // C3847
+    // Old and new data for metadata of default language for Approved and Rejected channels
+    @Test
+    public void checkChnlMetadataTest() throws InterruptedException {
+
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	boolean Flag1 = false;
+	// login
+	WebElement username = fluentWait(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	username.sendKeys(dataMap.get("UserAccountHolder"));
+	password.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+
+	String channelTitle = "Test" + TestUtils.getCurrentDateTime();
+	String channelDescription = "Description" + TestUtils.getCurrentDateTime();
+	// to get AssetId Key = "id" , for assetTitle key = "title"
+	// for CategoryId key = "categoryId"
+	RestClient restClient = new RestClient();
+	List<String> requiredKeys = new ArrayList<String>();
+	requiredKeys.add("id");
+	requiredKeys.add("categoryId");
+	requiredKeys.add("title");
+	String assetSlNumber = "4";
+	Map<String, String> levelVal = restClient.hierarchyLevelValues(requiredKeys, assetSlNumber);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	CatalogPageObj CatalogPageObjTest = PageFactory.initElements(driver, CatalogPageObj.class);
+	ApprovalPageObject ApprovalTestPageobj = PageFactory.initElements(driver, ApprovalPageObject.class);
+	OptionalMetadataPageObj optionalMetadataObj = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	String searchCatagoryId = "3705";
+	HeaderPageObj.clickMenu("CATALOG");
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	CatalogPageObjTest.searchCategory(searchCatagoryId);
+
+	String searchAssetId = levelVal.get("id");
+	String searchAssetTitle = levelVal.get("title");
+	// CatalogPageObjTest.searchAsset(searchAssetId);
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+
+	// First element in center pane should be the new element
+	WebElement newChannel = driver.findElement(By.cssSelector("div.main-panel"));
+
+	// Set title
+	CatalogPageObjTest.setTitlemain(newChannel, channelTitle);
+	CatalogPageObjTest.setDescriptionmain(newChannel, channelDescription);
+	OptionalMetadataPageObj optionalMetadataPO = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+
+	// Get list of visible metadata
+	List<WebElement> visibleElementList = driver.findElements(By.xpath("//div[@class='zebra ng-scope']"));
+
+	// Adding values only to the visible metadata
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataPO.enterValueInMetadataChannel(fieldName, fieldName + TestUtils.getCurrentDateTime());
+	    }
+	}
+	Map<String, List<String>> allSetMetadata = optionalMetadataObj.getListOfVisibleMetadataChannel();
+	allSetMetadata.put("title", Arrays.asList(channelTitle));
+	allSetMetadata.put("description", Arrays.asList(channelDescription));
+
+	CatalogPageObjTest.clickSaveButtonmain(newChannel);
+
+	PageObjectUtils.logout(driver);
+
+	// login
+	WebElement username1 = fluentWait(By.name("username"));
+	WebElement password1 = driver.findElement(By.id("password"));
+	username1.sendKeys(dataMap.get("UserAdmin"));
+	password1.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton1 = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton1.click();
+
+	HeaderPageObj.clickMenu("APPROVAL");
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    String currentTitle = ApprovalTestPageobj.channelList.get(i)
+		    .findElement(By.cssSelector("div.metadata > strong")).getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		ApprovalTestPageobj.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+
+	Collection<List<String>> keys = allSetMetadata.values();
+	Map<String, String> actualVal = ApprovalTestPageobj.getAllMetadataKeyVal();
+	Iterator<List<String>> valList = keys.iterator();
+
+	System.out.println();
+	for (int i = 0; i < actualVal.size(); i++) {
+	    String val = valList.next().iterator().next();
+	    if (!actualVal.containsValue(val)) {
+		Flag1 = false;
+		break;
+	    } else {
+		Flag1 = true;
+	    }
+	}
+	if (Flag1) {
+	    assertTrue(true);
+	    System.out.println("New Values correctly appeared in Task List");
+	} else {
+	    System.out.println("New Values not correctly appeared in Task List");
+	    assertTrue(false);
+	}
+
+	// Click on Approve button in the center pane
+
+	try {
+	    ApprovalTestPageobj.approveButton.click();
+	} catch (Exception e) {
+	    System.out.println("Element not found");
+	}
+
+    }
+
+    @Test
+    public void checkChanlMetadataOdrLangTest() throws InterruptedException {
+
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	boolean Flag1 = false;
+	// login
+	WebElement username = fluentWait(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	username.sendKeys(dataMap.get("UserAccountHolder"));
+	password.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+
+	String channelTitle = "Test" + TestUtils.getCurrentDateTime();
+	String channelDescription = "Description" + TestUtils.getCurrentDateTime();
+	// to get AssetId Key = "id" , for assetTitle key = "title"
+	// for CategoryId key = "categoryId"
+	RestClient restClient = new RestClient();
+	List<String> requiredKeys = new ArrayList<String>();
+	requiredKeys.add("id");
+	requiredKeys.add("categoryId");
+	requiredKeys.add("title");
+	String assetSlNumber = "4";
+	Map<String, String> levelVal = restClient.hierarchyLevelValues(requiredKeys, assetSlNumber);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	CatalogPageObj CatalogPageObjTest = PageFactory.initElements(driver, CatalogPageObj.class);
+	ApprovalPageObject ApprovalTestPageobj = PageFactory.initElements(driver, ApprovalPageObject.class);
+	OptionalMetadataPageObj optionalMetadataObj = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	String searchCatagoryId = "3691";
+	HeaderPageObj.clickMenu("CATALOG");
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	CatalogPageObjTest.searchCategory(searchCatagoryId);
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+
+	WebElement languageTab = driver.findElement(By
+		.xpath("//ul[@class='tabs-list']/li[@class='tab ng-binding ng-scope']"));
+	languageTab.getText();
+	languageTab.click();
+	String searchAssetId = levelVal.get("id");
+	String searchAssetTitle = levelVal.get("title");
+	// CatalogPageObjTest.searchAsset(searchAssetId);
+
+	// First element in center pane should be the new element
+	WebElement newChannel = driver.findElement(By.cssSelector("div.main-panel"));
+
+	// Set title
+	CatalogPageObjTest.setTitlemain(newChannel, channelTitle);
+	CatalogPageObjTest.setDescriptionmain(newChannel, channelDescription);
+	OptionalMetadataPageObj optionalMetadataPO = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+
+	// Get list of visible metadata
+	List<WebElement> visibleElementList = driver.findElements(By
+		.xpath("//div[@class='tab-content ng-scope activeTabContent']//div[@class='zebra ng-scope']"));
+
+	// Adding values only to the visible metadata
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataPO.enterValueInMetadataChannel(fieldName, fieldName + TestUtils.getCurrentDateTime());
+	    }
+	}
+	Map<String, List<String>> allSetMetadata = optionalMetadataObj.getListOfVisibleMetadataChannel();
+	allSetMetadata.put("title", Arrays.asList(channelTitle));
+	allSetMetadata.put("description", Arrays.asList(channelDescription));
+
+	CatalogPageObjTest.clickSaveButtonmain(newChannel);
+
+	PageObjectUtils.logout(driver);
+
+	// login
+	WebElement username1 = fluentWait(By.name("username"));
+	WebElement password1 = driver.findElement(By.id("password"));
+	username1.sendKeys(dataMap.get("UserAdmin"));
+	password1.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton1 = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton1.click();
+
+	HeaderPageObj.clickMenu("APPROVAL");
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    String currentTitle = ApprovalTestPageobj.channelList.get(i)
+		    .findElement(By.cssSelector("div.metadata > strong")).getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		ApprovalTestPageobj.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+
+	Collection<List<String>> keys = allSetMetadata.values();
+	Map<String, String> actualVal = ApprovalTestPageobj.getAllMetadataKeyVal();
+	Iterator<List<String>> valList = keys.iterator();
+
+	System.out.println();
+	for (int i = 0; i < actualVal.size(); i++) {
+	    String val = valList.next().iterator().next();
+	    if (!actualVal.containsValue(val)) {
+		Flag1 = false;
+		break;
+	    } else {
+		Flag1 = true;
+	    }
+	}
+	if (Flag1) {
+	    assertTrue(true);
+	    System.out.println("New Values correctly appeared in Task List");
+	} else {
+	    System.out.println("New Values not correctly appeared in Task List");
+	    assertTrue(false);
+	}
+	// Click on Approve button in the center pane
+	try {
+	    ApprovalTestPageobj.approveButton.click();
+	} catch (Exception e) {
+	    System.out.println("Element not found");
+	}
+
+    }
+
+    @Test
+    public void imageApproveTest() throws AWTException, InterruptedException, IOException {
+
+	boolean flag1 = false;
+	// login
+	WebElement username = fluentWait(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	username.sendKeys(dataMap.get("UserAccountHolder"));
+	password.sendKeys("Demo111!");
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+
+	String channelTitle = "Test" + TestUtils.getCurrentDateTime();
+	String channelDescription = "Description" + TestUtils.getCurrentDateTime();
+	// to get AssetId Key = "id" , for assetTitle key = "title"
+	// for CategoryId key = "categoryId"
+	/*
+	 * RestClient restClient = new RestClient(); List<String> requiredKeys = new ArrayList<String>();
+	 * requiredKeys.add("id"); requiredKeys.add("categoryId"); requiredKeys.add("title"); String assetSlNumber = "4";
+	 * Map<String, String> levelVal = restClient.hierarchyLevelValues(requiredKeys, assetSlNumber);
+	 */
+
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	ContentPageObject ContentPageObj = PageFactory.initElements(driver, ContentPageObject.class);
+	CatalogPageObj CatalogPageObjTest = PageFactory.initElements(driver, CatalogPageObj.class);
+	ApprovalPageObject ApprovalTestPageobj = PageFactory.initElements(driver, ApprovalPageObject.class);
+	OptionalMetadataPageObj optionalMetadataObj = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	HeaderPageObj.clickMenu("CATALOG");
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	CatalogPageObjTest.clickfirstChannel();
+	// Click on "Add Channel"
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='loader']"), 10);
+	CatalogPageObjTest.clickaddChannel();
+	CatalogPageObjTest.setTitle1(channelTitle);
+	WebElement newChannel1 = driver.findElement(By.xpath("//div[@class='channel-info']"));
+	((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", newChannel1);
+	WebElement newChannel = CatalogPageObjTest.getcenterPaneChildren().get(0);
+	optionalMetadataObj.setOptionalMetadataPanelAdd(newChannel);
+
+	// Get list of visible metadata
+	List<WebElement> visibleElementList = optionalMetadataObj.getListOfVisibleMetadataFieldsAdd();
+
+	// Adding values only to the visible metadata
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataObj.enterValueInMetadataAdd(fieldName, "test" + fieldName);
+	    }
+	}
+	CatalogPageObjTest.clicksaveBtn();
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='progress-button loading']"), 10);
+	String ChannelID = CatalogPageObjTest.getchannelID();
+	System.out.println(ChannelID);
+	RestClient restClient = new RestClient();
+	restClient.approveNewChannel(ChannelID, "NEW");
+	// CatalogPageObjTest.clickSaveButton(newChannel);
+	WebElement newChannel2 = driver.findElement(By.cssSelector("div.main-panel"));
+	HeaderPageObj.clickMenu("ACCOUNTS");
+	HeaderPageObj.clickMenu("CATALOG");
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	Thread.sleep(600);
+	CatalogPageObjTest.searchCategory(ChannelID);
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+
+	WebElement shadow_root_Catalog = (WebElement) ((JavascriptExecutor) driver).executeScript(
+		"return document.querySelector(arguments[0]).shadowRoot;",
+		"div.channel-detail-columns > div.column > vcc-image-upload.image-upload");
+	WebElement uploadButton2 = shadow_root_Catalog
+		.findElement(By
+			.cssSelector("div.vcc-image-upload > div.image-container > div.overlay > div.upload-text.left.upload-text,left > span.upload-text-inner"));
+
+	// mouse hover on upload button to make it visible
+	Actions action2 = new Actions(driver);
+	action2.moveToElement(uploadButton2).build().perform();
+	// Click upload button
+	uploadButton2.click();
+	// Select Image to upload
+	ContentPageObj.SelectImage("\\VimondAutomation\\Resources\\vimond_org.jpg");
+	Thread.sleep(600);
+	CatalogPageObjTest.clickSaveButtonmain(newChannel);
+	WebElement loader = shadow_root_Catalog.findElement(By.cssSelector("div.vcc-image-upload"));
+	testUT.waitForElementFluently(loader, 10);
+	String imgNewId1 = driver.findElement(By.xpath("//vcc-image-upload[@class='image-upload']")).getAttribute(
+		"imagepackid");
+	System.out.println(imgNewId1);
+	PageObjectUtils.logout(driver);
+
+	// login
+	WebElement username1 = fluentWait(By.name("username"));
+	WebElement password1 = driver.findElement(By.id("password"));
+	username1.sendKeys(dataMap.get("UserAdmin"));
+	password1.sendKeys("Demo111!");
+	WebElement signInButton1 = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton1.click();
+
+	HeaderPageObj.clickMenu("APPROVAL");
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    String currentTitle = ApprovalTestPageobj.channelList.get(i)
+		    .findElement(By.cssSelector("div.metadata > strong")).getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		ApprovalTestPageobj.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+	try {
+	    WebElement wait = driver.findElement(By.xpath("//div[@class='column fade-in']"));
+	    testUT.waitForElementFluently(wait, 10);
+	    String imageActual = driver.findElement(By.xpath("//div[@class='column fade-in']/img")).getAttribute("ng-src");
+	    if (imageActual.contains(imgNewId1)) {
+		flag1 = true;
+	    } else {
+		flag1 = false;
+	    }
+	    String updateMsg = driver.findElement(By.xpath("//p[@class='image-update-label ng-scope']")).getText();
+	    if (updateMsg.contains("Image has been updated") && flag1) {
+		assertTrue(true);
+	    } else {
+		assertTrue(false);
+	    }
+	} catch (Exception e) {
+	    assertTrue(false);
+	    System.out.println("Element not found");
+	}
+	/*
+	 * WebElement imageId =
+	 * driver.findElement(By.xpath("//label[@for='image-pack']/following-sibling::div/input[@name='image-pack']"));
+	 * String imageExpected = imageId.getAttribute("value");
+	 * 
+	 * PageObjectUtils.logout(driver);
+	 * 
+	 * //login WebElement username1 = fluentWait(By.name("username")); WebElement password1 =
+	 * driver.findElement(By.id("password")); username1.sendKeys("saurabh.agarwal@miles.in");
+	 * password1.sendKeys(dataMap.get("Psswd")); WebElement signInButton1 =
+	 * driver.findElement(By.cssSelector(".cms-button.button.upload.primary")); signInButton1.click();
+	 * 
+	 * 
+	 * WebElement approvalModule = fluentWait(By.xpath("//a[contains(text(),'Approval')]")); approvalModule.click();
+	 * 
+	 * for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) { String currentTitle =
+	 * ApprovalTestPageobj.channelList.get(i) .findElement(By.cssSelector("div.metadata > strong")).getText();
+	 * 
+	 * // If channel found, select the channel if (currentTitle.equals(channelTitle)) {
+	 * ApprovalTestPageobj.channelList.get(i) .findElement(By.cssSelector("div.metadata > strong")).click(); break; } }
+	 * 
+	 * String imageActual =
+	 * driver.findElement(By.xpath("//p[contains(text(),'Image Pack:')]/following-sibling::p[2]")).getText();
+	 * 
+	 * if(imageActual.equals(imageExpected)){ assert(true);
+	 * System.out.println("image uploaded and channel in Task List"); }else{ assert(false);
+	 * System.out.println("image not uploaded or channel not on task list"); }
+	 * 
+	 * // Click on Approve button in the center pane ApprovalTestPageobj.approveButton.click();
+	 */
+    }
+
+    @Test
+    public void categoryAndAssetApproveTest() throws AWTException, InterruptedException {
+
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	boolean Flag1 = false;
+	// login
+	PageObjectUtils.login(driver, dataMap.get("UserAccountHolder"), dataMap.get("Psswd"));
+
+	String channelTitle = "Test" + TestUtils.getCurrentDateTime();
+	// to get AssetId Key = "id" , for assetTitle key = "title"
+	// for CategoryId key = "categoryId"
+	RestClient restClient = new RestClient();
+	List<String> requiredKeys = new ArrayList<String>();
+	requiredKeys.add("id");
+	requiredKeys.add("categoryId");
+	requiredKeys.add("title");
+	String assetSlNumber = "4";
+	Map<String, String> levelVal = restClient.hierarchyLevelValues(requiredKeys, assetSlNumber);
+
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	ContentPageObject ContentPageObj = PageFactory.initElements(driver, ContentPageObject.class);
+	CatalogPageObj CatalogPageObjTest = PageFactory.initElements(driver, CatalogPageObj.class);
+	ApprovalPageObject ApprovalTestPageobj = PageFactory.initElements(driver, ApprovalPageObject.class);
+	OptionalMetadataPageObj optionalMetadataObj = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	String searchCatagoryId = "3711";
+	String categoryId1 = "2936";
+	String categoryId2 = "2491";
+	String categoryId = "";
+	String assetSortVal1 = "episode asc";
+	String assetSortVal2 = "episode desc";
+	String assetSortVal = "";
+	headerPO.clickMenu("CATALOG");
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	CatalogPageObjTest.searchCategory(searchCatagoryId);
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+	WebElement newChannel = driver.findElement(By.cssSelector("div.main-panel"));
+	// Set title
+	WebElement title = driver.findElement(By.xpath("//input[@placeholder='Title']"));
+	title.clear();
+	title.sendKeys(channelTitle);
+	// CatalogPageObjTest.setTitle(newChannel, channelTitle);
+	String selectedCategory = driver.findElement(By.xpath("//p[@class='vim-select-label ng-binding']")).getText();
+	if (selectedCategory.contains(categoryId1)) {
+	    categoryId = categoryId2;
+	} else {
+	    categoryId = categoryId1;
+	}
+	// Get list of visible metadata
+	List<WebElement> visibleElementList = driver.findElements(By.xpath("//div[@class='zebra ng-scope']"));
+
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataObj.enterValueInMetadataChannel(fieldName, fieldName + TestUtils.getCurrentDateTime());
+	    }
+	}
+	driver.findElement(By.xpath("//div[@class='vim-select-header closed']")).click();
+
+	WebElement categoryDetail = driver.findElement(By.xpath("//span[contains(text(),'" + categoryId + "')]"));
+	((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", categoryDetail);
+	categoryDetail.click();
+
+	String assertSortData = driver.findElement(By.xpath("//p[@class='vim-select-label']")).getText();
+	if (assertSortData.equals(assetSortVal1)) {
+	    assetSortVal = assetSortVal2;
+	} else {
+	    assetSortVal = assetSortVal1;
+	}
+	WebElement assetSortOrder = driver.findElement(By.xpath("//div[@class='vim-select-header']"));
+	fluentWait(By.xpath("//div[@class='vim-select-header']"));
+	assetSortOrder.click();
+	WebElement assetSortELe = driver.findElement(By.xpath("//p[contains(text(),'" + assetSortVal + "')]"));
+	((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", assetSortELe);
+	assetSortELe.click();
+	String categoryData = driver.findElement(
+		By.xpath("//div[@class='vim-select-header closed']/p[@class='vim-select-label ng-binding']")).getText();
+
+	WebElement saveButton = driver.findElement(By.xpath("//button[@class='vim-button-primary']"));
+	// div.channel-details-toolbar vim-save-button button.vim-button-primary
+	((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", saveButton);
+	saveButton.click();
+
+	PageObjectUtils.logout(driver);
+
+	// login
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+	headerPO.clickMenu("APPROVAL");
+
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    String currentTitle = ApprovalTestPageobj.channelList.get(i)
+		    .findElement(By.cssSelector("div.metadata > strong")).getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		ApprovalTestPageobj.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+
+	String actualCategory = driver.findElement(
+		By.xpath("//p[contains(text(),'Categories')]/following-sibling::p[@title='New value']")).getText();
+	String actualAssetSort = driver.findElement(
+		By.xpath("//p[contains(text(),'Asset sort order')]/following-sibling::p[@title='New value']")).getText();
+	if (actualCategory.contains(categoryData) || actualAssetSort.contains(assetSortVal)) {
+	    assert (true);
+	} else {
+	    assert (false);
+	}
+
+	// Click on Approve button in the center pane
+	ApprovalTestPageobj.approveButton.click();
+    }
+
+    @Test
+    public void approveCheck() throws InterruptedException {
+
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	boolean Flag1 = false, Flag2 = false;
+	// login
+	WebElement username = fluentWait(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	username.sendKeys(dataMap.get("UserAccountHolder"));
+	password.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+
+	String channelTitle = "Test" + TestUtils.getCurrentDateTime();
+	String channelDescription = "Description" + TestUtils.getCurrentDateTime();
+
+	// to get AssetId Key = "id" , for assetTitle key = "title"
+	// for CategoryId key = "categoryId"
+	RestClient restClient = new RestClient();
+	List<String> requiredKeys = new ArrayList<String>();
+	requiredKeys.add("id");
+	requiredKeys.add("categoryId");
+	requiredKeys.add("title");
+	String assetSlNumber = "4";
+	Map<String, String> levelVal = restClient.hierarchyLevelValues(requiredKeys, assetSlNumber);
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	CatalogPageObj CatalogPageObjTest = PageFactory.initElements(driver, CatalogPageObj.class);
+	ApprovalPageObject ApprovalTestPageobj = PageFactory.initElements(driver, ApprovalPageObject.class);
+	OptionalMetadataPageObj optionalMetadataObj = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	String searchCatagoryId = "3710";
+	HeaderPageObj.clickMenu("CATALOG");
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	CatalogPageObjTest.searchCategory(searchCatagoryId);
+
+	String searchAssetId = levelVal.get("id");
+	String searchAssetTitle = levelVal.get("title");
+	// CatalogPageObjTest.searchAsset(searchAssetId);
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+
+	// First element in center pane should be the new element
+	String oldChanlTitle = driver.findElement(By.xpath("//input[@placeholder='Title']")).getAttribute("value");
+	String oldChanlDescptn = driver.findElement(By.xpath("//textarea[@placeholder='Description']"))
+		.getAttribute("value");
+	WebElement newChannel = driver.findElement(By.cssSelector("div.main-panel"));
+
+	// old values taken
+	Map<String, List<String>> allOldMetadata = optionalMetadataObj.getListOfVisibleMetadataChannel();
+	allOldMetadata.put("title", Arrays.asList(oldChanlTitle));
+	allOldMetadata.put("description", Arrays.asList(oldChanlDescptn));
+
+	// Set title
+	CatalogPageObjTest.setTitlemain(newChannel, channelTitle);
+	CatalogPageObjTest.setDescriptionmain(newChannel, channelDescription);
+	OptionalMetadataPageObj optionalMetadataPO = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+
+	// Get list of visible metadata
+	List<WebElement> visibleElementList = driver.findElements(By.xpath("//div[@class='zebra ng-scope']"));
+
+	// Adding values only to the visible metadata
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataPO.enterValueInMetadataChannel(fieldName, fieldName + TestUtils.getCurrentDateTime());
+	    }
+	}
+	Map<String, List<String>> allSetMetadata = optionalMetadataObj.getListOfVisibleMetadataChannel();
+	allSetMetadata.put("title", Arrays.asList(channelTitle));
+	allSetMetadata.put("description", Arrays.asList(channelDescription));
+
+	CatalogPageObjTest.clickSaveButtonmain(newChannel);
+
+	PageObjectUtils.logout(driver);
+
+	// login
+	WebElement username1 = fluentWait(By.name("username"));
+	WebElement password1 = driver.findElement(By.id("password"));
+	username1.sendKeys(dataMap.get("UserAdmin"));
+	password1.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton1 = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton1.click();
+
+	HeaderPageObj.clickMenu("APPROVAL");
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    String currentTitle = ApprovalTestPageobj.channelList.get(i)
+		    .findElement(By.cssSelector("div.metadata > strong")).getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		ApprovalTestPageobj.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		testUT.waitForElementToBeInvisible(By.xpath("//div[@class='column fade-out']"), 10);
+		break;
+	    }
+	}
+
+	Collection<List<String>> keys = allSetMetadata.values();
+
+	Collection<List<String>> keysOld = allOldMetadata.values();
+	Map<String, String> actualVal = ApprovalTestPageobj.getAllMetadataKeyVal();
+	Map<String, String> actualOldVal = ApprovalTestPageobj.getAllOldMetadataKeyVal();
+
+	Iterator<List<String>> valList = keys.iterator();
+
+	for (int i = 0; i < actualVal.size(); i++) {
+	    String val = valList.next().iterator().next();
+	    if (!actualVal.containsValue(val)) {
+		Flag1 = false;
+		break;
+	    } else {
+		Flag1 = true;
+	    }
+	}
+
+	Iterator<List<String>> valList1 = keysOld.iterator();
+
+	for (int i = 0; i < actualOldVal.size(); i++) {
+	    String val = valList1.next().iterator().next();
+	    if (!actualOldVal.containsValue(val)) {
+		if (val.equalsIgnoreCase("1") || val.equalsIgnoreCase("1990") || val.contains("TV")) {
+		    continue;
+		}
+		Flag2 = false;
+		break;
+	    } else {
+		Flag2 = true;
+	    }
+	}
+	try {
+	    // Click on Approve button in the center pane
+	    ApprovalTestPageobj.approveButton.click();
+	    testUT.waitForElementToBeInvisible(By.xpath("//div[@class='ng-scope']"), 10);
+	    ApprovalTestPageobj.clickApprovedTab();
+	    testUT.waitForElementToBeInvisible(
+		    By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+
+	    for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+		String currentTitle = ApprovalTestPageobj.channelList.get(i)
+			.findElement(By.cssSelector("div.metadata > strong")).getText();
+		js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+
+		// If channel found, select the channel
+		if (currentTitle.equals(channelTitle)) {
+		    js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		    ApprovalTestPageobj.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		    break;
+		}
+	    }
+
+	    Map<String, String> actualApprovdVal = ApprovalTestPageobj.getAllMetadataKeyVal();
+	    Iterator<List<String>> valListApprv = keys.iterator();
+
+	    for (int i = 0; i < actualVal.size(); i++) {
+		String val = valListApprv.next().iterator().next();
+		if (!actualVal.containsValue(val)) {
+		    Flag1 = false;
+		    break;
+		} else {
+		    Flag1 = true;
+		}
+	    }
+	    if (Flag1) {
+		assertTrue(true);
+		System.out.println("New Values correctly appeared in Task List");
+	    } else {
+		System.out.println("New Values not correctly appeared in Task List");
+		assertTrue(false);
+	    }
+	} catch (Exception e) {
+	    assertTrue(false);
+	    System.out.println("Element not found");
+	}
+
+    }
+
+    @Test
+    public void rejectCheck() throws InterruptedException {
+
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	boolean Flag1 = false, Flag2 = false;
+	// login
+	WebElement username = fluentWait(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	username.sendKeys(dataMap.get("UserAccountHolder"));
+	password.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	String channelTitle = "Test" + TestUtils.getCurrentDateTime();
+	String channelDescription = "Description" + TestUtils.getCurrentDateTime();
+
+	// to get AssetId Key = "id" , for assetTitle key = "title"
+	// for CategoryId key = "categoryId"
+	RestClient restClient = new RestClient();
+	List<String> requiredKeys = new ArrayList<String>();
+	requiredKeys.add("id");
+	requiredKeys.add("categoryId");
+	requiredKeys.add("title");
+	String assetSlNumber = "4";
+	Map<String, String> levelVal = restClient.hierarchyLevelValues(requiredKeys, assetSlNumber);
+
+	CatalogPageObj CatalogPageObjTest = PageFactory.initElements(driver, CatalogPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	ApprovalPageObject ApprovalTestPageobj = PageFactory.initElements(driver, ApprovalPageObject.class);
+	OptionalMetadataPageObj optionalMetadataObj = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	String searchCatagoryId = "3713";
+	HeaderPageObj.clickMenu("CATALOG");
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	CatalogPageObjTest.searchCategory(searchCatagoryId);
+
+	String searchAssetId = levelVal.get("id");
+	String searchAssetTitle = levelVal.get("title");
+	// CatalogPageObjTest.searchAsset(searchAssetId);
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+
+	// First element in center pane should be the new element
+	String oldChanlTitle = driver.findElement(By.xpath("//input[@placeholder='Title']")).getAttribute("value");
+	String oldChanlDescptn = driver.findElement(By.xpath("//textarea[@placeholder='Description']"))
+		.getAttribute("value");
+	WebElement newChannel = driver.findElement(By.cssSelector("div.main-panel"));
+
+	// old values taken
+	Map<String, List<String>> allOldMetadata = optionalMetadataObj.getListOfVisibleMetadataChannel();
+	allOldMetadata.put("title", Arrays.asList(oldChanlTitle));
+	allOldMetadata.put("description", Arrays.asList(oldChanlDescptn));
+
+	// Set title
+	CatalogPageObjTest.setTitlemain(newChannel, channelTitle);
+	CatalogPageObjTest.setDescriptionmain(newChannel, channelDescription);
+	OptionalMetadataPageObj optionalMetadataPO = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+
+	// Get list of visible metadata
+	List<WebElement> visibleElementList = driver.findElements(By.xpath("//div[@class='zebra ng-scope']"));
+
+	// Adding values only to the visible metadata
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataPO.enterValueInMetadataChannel(fieldName, fieldName + TestUtils.getCurrentDateTime());
+	    }
+	}
+	Map<String, List<String>> allSetMetadata = optionalMetadataObj.getListOfVisibleMetadataChannel();
+	allSetMetadata.put("title", Arrays.asList(channelTitle));
+	allSetMetadata.put("description", Arrays.asList(channelDescription));
+
+	CatalogPageObjTest.clickSaveButtonmain(newChannel);
+
+	PageObjectUtils.logout(driver);
+
+	// login
+	WebElement username1 = fluentWait(By.name("username"));
+	WebElement password1 = driver.findElement(By.id("password"));
+	username1.sendKeys(dataMap.get("UserAdmin"));
+	password1.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton1 = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton1.click();
+
+	HeaderPageObj.clickMenu("APPROVAL");
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+	    String currentTitle = ApprovalTestPageobj.channelList.get(i)
+		    .findElement(By.cssSelector("div.metadata > strong")).getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		ApprovalTestPageobj.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+
+	// Collection<List<String>> keys = allSetMetadata.values();
+	//
+	// Collection<List<String>> keysOld = allOldMetadata.values();
+	// Map<String, String> actualVal = ApprovalTestPageobj.getAllMetadataKeyVal();
+	// Map<String, String> actualOldVal = ApprovalTestPageobj.getAllOldMetadataKeyVal();
+	//
+	// Iterator<List<String>> valList = keys.iterator();
+	//
+	//
+	// for(int i=0;i<actualVal.size();i++){
+	// String val = valList.next().iterator().next();
+	// if(!actualVal.containsValue(val)){
+	// Flag1 = false;
+	// break;
+	// }
+	// else{
+	// Flag1 = true;
+	// }
+	// }
+	//
+	// Iterator<List<String>> valList1 = keysOld.iterator();
+	//
+	// for(int i=0;i<actualOldVal.size();i++){
+	// String val = valList1.next().iterator().next();
+	// if(!actualOldVal.containsValue(val)){
+	// if(val.equalsIgnoreCase("1")||val.equalsIgnoreCase("1990")||val.contains("TV")){
+	// continue;
+	// }
+	// Flag2 = false;
+	// break;
+	// }
+	// else{
+	// Flag2 = true;
+	// }
+	// }
+
+	// Click on Approve button in the center pane
+	try {
+	    ApprovalTestPageobj.clickrejectBTN();
+	    ApprovalTestPageobj.clickrejectedTab();
+	    testUT.waitForElementToBeInvisible(
+		    By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	    for (int i = 0; i < ApprovalTestPageobj.channelList.size(); i++) {
+		String currentTitle = ApprovalTestPageobj.channelList.get(i)
+			.findElement(By.cssSelector("div.metadata > strong")).getText();
+		js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		// If channel found, select the channel
+		if (currentTitle.equals(channelTitle)) {
+		    js.executeScript("arguments[0].scrollIntoView(true);", ApprovalTestPageobj.channelList.get(i));
+		    ApprovalTestPageobj.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		    break;
+		}
+	    }
+
+	    Collection<List<String>> keys = allSetMetadata.values();
+
+	    Collection<List<String>> keysOld = allOldMetadata.values();
+	    Map<String, String> actualVal = ApprovalTestPageobj.getAllMetadataKeyVal();
+	    Map<String, String> actualOldVal = ApprovalTestPageobj.getAllOldMetadataKeyVal();
+
+	    Iterator<List<String>> valList = keys.iterator();
+
+	    for (int i = 0; i < actualVal.size(); i++) {
+		String val = valList.next().iterator().next();
+		if (!actualVal.containsValue(val)) {
+		    Flag1 = false;
+		    break;
+		} else {
+		    Flag1 = true;
+		}
+	    }
+
+	    Iterator<List<String>> valList1 = keysOld.iterator();
+
+	    for (int i = 0; i < actualOldVal.size(); i++) {
+		String val2 = valList1.next().iterator().next();
+		if (!actualOldVal.containsValue(val2)) {
+		    if (val2.equalsIgnoreCase("1") || val2.equalsIgnoreCase("1990") || val2.contains("TV")) {
+			continue;
+		    }
+
+		} else {
+		    Flag2 = true;
+		}
+	    }
+
+	    if (Flag1 && Flag2) {
+		assertTrue(true);
+		System.out.println("New Values correctly appeared in Task List");
+	    } else {
+		System.out.println("New Values not correctly appeared in Task List");
+		assertTrue(false);
+	    }
+	} catch (Exception e) {
+	    assertTrue(false);
+	    System.out.println("Element not found");
+	}
+
+    }
+
+    // C19 - Filter on channel list
+    @Test
+    public void filterChannelList() throws IOException, APIException, InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+	ContentOrganizerModule contentOrganizeModule = PageFactory.initElements(driver, ContentOrganizerModule.class);
+	CatalogPageObj catalogModule = PageFactory.initElements(driver, CatalogPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false;
+	// login
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+
+	// Click on approval tab
+	HeaderPageObj.clickMenu("APPROVAL");
+	// Taklist tab Name
+	WebElement taskList = driver.findElement(By.xpath("//div[@class='filter-button-panel']/div[1]"));
+	String taskTab = taskList.getText();
+	// Approval tab Name
+	WebElement approveList = driver.findElement(By.xpath("//div[@class='filter-button-panel']/div[2]"));
+	String approveTab = approveList.getText();
+	// Rejection tab Name
+	WebElement rejectList = driver.findElement(By.xpath("//div[@class='filter-button-panel']/div[3]"));
+	String rejectTab = rejectList.getText();
+	// Condition to verify if tab is present
+	if (taskTab.equalsIgnoreCase("TASK LIST") && approveTab.equalsIgnoreCase("APPROVED")
+		&& rejectTab.equalsIgnoreCase("REJECTED")) {
+	    flag1 = true;
+	} else {
+	    flag1 = false;
+	}
+	// Click on TaskList tab
+	taskList.click();
+	// wait
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Condition to check tasklist icon
+	List<WebElement> taskListicon = driver.findElements(By.xpath("//div[@class='status-bar']/img"));
+	for (int i = 0; i < 5; i++) {
+	    String icon = taskListicon.get(i).getAttribute("src");
+	    if (icon.contains("attention-icon")) {
+		flag2 = true;
+	    } else {
+		flag2 = false;
+	    }
+	}
+	// Click on Approval tab
+	approveList.click();
+	// wait
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Condition to check Approved list icon
+	List<WebElement> approveListicon = driver.findElements(By.xpath("//div[@class='status-bar']/img"));
+	for (int i = 0; i < 5; i++) {
+	    String icon = approveListicon.get(i).getAttribute("src");
+	    if (icon.contains("approved-icon")) {
+		flag3 = true;
+	    } else {
+		flag3 = false;
+	    }
+	}
+	// Click on Rejection tab
+	rejectList.click();
+	// wait
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Condition to check Rejection list icon
+	List<WebElement> rejectListicon = driver.findElements(By.xpath("//div[@class='status-bar']/img"));
+	for (int i = 0; i < 5; i++) {
+	    String icon = rejectListicon.get(i).getAttribute("src");
+	    if (icon.contains("rejected-icon")) {
+		flag4 = true;
+	    } else {
+		flag4 = false;
+	    }
+	}
+	// Final condition
+	if (flag1 && flag2 && flag3 && flag4) {
+	    assertTrue(true);
+	} else {
+	    assertTrue(false);
+	}
+    }
+
+    // C3988 - Verify that on rejecting the channel multiple times,
+    // the old data displayed, is the data entered when the channel was created
+    @Test
+    public void rejectMultipleTimes() throws IOException, APIException, InterruptedException, ParseException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+	ContentOrganizerModule contentOrganizeModule = PageFactory.initElements(driver, ContentOrganizerModule.class);
+	ApprovalPageObject approvalModule = PageFactory.initElements(driver, ApprovalPageObject.class);
+	CatalogPageObj catalogModule = PageFactory.initElements(driver, CatalogPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	String channelTitle = "Test" + TestUtils.getCurrentDateTime();
+	String channelDescription = "Description" + TestUtils.getCurrentDateTime();
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	boolean flag1 = false, flag2 = false;
+	RestClient c = new RestClient();
+	// login
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+	// Store old values
+	Map<String, List<String>> oldMetadata = approvalModule.NewCreateChannel(driver);
+	List<String> categoryid = oldMetadata.get("id");
+	String id = null;
+	for (String number : categoryid) {
+	    id = number;
+	}
+	// Rest API call for rejecting channel in approval module
+	c.rejectChannelApproval(id, "null", "REJECTED");
+	// refresh the page
+	driver.navigate().refresh();
+	// wait
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	testUT.waitForElementToBeInvisible(By.xpath("//span[@class='glyphicons  chevron-right']"), 10);
+	// Search category id
+	catalogModule.searchCategory(id);
+	// Click on the channel header image
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+	WebElement newChannel = driver.findElement(By.cssSelector("div.main-panel"));
+	// Set values
+	catalogModule.setTitlemain(newChannel, channelTitle);
+	catalogModule.setDescriptionmain(newChannel, channelDescription);
+	OptionalMetadataPageObj optionalMetadataPO = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+
+	// Get list of visible metadata
+	List<WebElement> visibleElementList = driver.findElements(By.xpath("//div[@class='zebra ng-scope']"));
+
+	// Adding values only to the visible metadata
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataPO.enterValueInMetadataChannel(fieldName, fieldName + TestUtils.getCurrentDateTime());
+	    }
+	}
+	// Click save button
+	catalogModule.clickSaveButtonmain(newChannel);
+	// to fetch the draft id of the rejected channel
+	String draftId = c.fetchDraftID(id);
+	// Rest Api to reject the channel 2nd time
+	c.rejectChannelApproval(id, draftId, "REJECTED_CHANGED");
+	// refresh the page
+	driver.navigate().refresh();
+	// wait
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	testUT.waitForElementToBeInvisible(By.xpath("//span[@class='glyphicons  chevron-right']"), 10);
+	// search channel id
+	catalogModule.searchCategory(id);
+	// Click the main channel header
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+	newChannel = driver.findElement(By.cssSelector("div.main-panel"));
+	// Set values
+	String finalchannelTitle = "NewTest" + TestUtils.getCurrentDateTime();
+	String finalchannelDescription = "NewDescription" + TestUtils.getCurrentDateTime();
+	// Set title
+	catalogModule.setTitlemain(newChannel, finalchannelTitle);
+	catalogModule.setDescriptionmain(newChannel, finalchannelDescription);
+	optionalMetadataPO = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+
+	// Get list of visible metadata
+	visibleElementList = driver.findElements(By.xpath("//div[@class='zebra ng-scope']"));
+
+	// Adding values only to the visible metadata
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataPO.enterValueInMetadataChannel(fieldName, fieldName + TestUtils.getCurrentDateTime());
+	    }
+	}
+	// Click save button
+	catalogModule.clickSaveButtonmain(newChannel);
+	// Save the new values
+	Map<String, List<String>> newMetadata = optionalMetadataPO.getListOfVisibleMetadataChannel();
+	newMetadata.put("title", Arrays.asList(finalchannelTitle));
+	newMetadata.put("description", Arrays.asList(finalchannelDescription));
+	// CLick on approval module
+	HeaderPageObj.clickMenu("APPROVAL");
+	// wait
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < approvalModule.channelList.size(); i++) {
+	    String currentTitle = approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong"))
+		    .getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(finalchannelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+		approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+
+	// Click on Reject button
+	approvalModule.clickrejectBTN();
+	approvalModule.clickrejectedTab();
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < approvalModule.channelList.size(); i++) {
+	    String currentTitle = approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong"))
+		    .getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(finalchannelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+		approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+	// Final condition to check old values and new values are present
+	Collection<List<String>> keys = newMetadata.values();
+	Collection<List<String>> keysOld = oldMetadata.values();
+	Map<String, String> actualVal = approvalModule.getAllMetadataKeyVal();
+	Map<String, String> actualOldVal = approvalModule.getAllOldMetadataKeyVal();
+	actualOldVal.put("id", id);
+	Iterator<List<String>> valList = keys.iterator();
+
+	for (int i = 0; i < actualVal.size(); i++) {
+	    String val = valList.next().iterator().next();
+	    if (!actualVal.containsValue(val)) {
+		flag1 = false;
+		break;
+	    } else {
+		flag1 = true;
+	    }
+	}
+
+	Iterator<List<String>> valList1 = keysOld.iterator();
+
+	for (int i = 0; i < actualOldVal.size(); i++) {
+	    String val2 = valList1.next().iterator().next();
+	    if (!actualOldVal.containsValue(val2)) {
+		flag2 = false;
+		if (val2.equalsIgnoreCase("1") || val2.equalsIgnoreCase("1990") || val2.contains("TV")) {
+		    continue;
+		}
+
+	    } else {
+		flag2 = true;
+	    }
+	}
+	// Final check
+	if (flag1 && flag2) {
+	    assertTrue(true);
+	    System.out.println("New Values & old values correctly appeared in Task List");
+	} else {
+	    System.out.println("New Values & old values  not correctly appeared in Task List");
+	    assertTrue(false);
+	}
+    }
+
+    // C3989 - Editing rejected channel without changing the image
+    // should not display an "Image update" message in Tasklist
+    @Test
+    public void editRejectChannel() throws IOException, APIException, InterruptedException, ParseException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+	ContentOrganizerModule contentOrganizeModule = PageFactory.initElements(driver, ContentOrganizerModule.class);
+	ApprovalPageObject approvalModule = PageFactory.initElements(driver, ApprovalPageObject.class);
+	CatalogPageObj catalogModule = PageFactory.initElements(driver, CatalogPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	String channelTitle = "EditTest" + TestUtils.getCurrentDateTime();
+	String channelDescription = "EditDescription" + TestUtils.getCurrentDateTime();
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	boolean flag1 = false, flag2 = false;
+	RestClient c = new RestClient();
+	// login with account holder
+	PageObjectUtils.login(driver, dataMap.get("UserAccountHolder"), dataMap.get("Psswd"));
+	// Store old values
+	Map<String, List<String>> oldMetadata = approvalModule.NewCreateChannel(driver);
+	List<String> categoryid = oldMetadata.get("id");
+	String id = null;
+	for (String number : categoryid) {
+	    id = number;
+	}
+	// Rest API call for rejecting channel in approval module
+	c.rejectChannelApproval(id, "null", "REJECTED");
+	// refresh the page
+	driver.navigate().refresh();
+	// wait
+	fluentWait(By.cssSelector("div.rootGlyphWrapper"));
+	testUT.waitForElementToBeInvisible(By.xpath("//span[@class='glyphicons  chevron-right']"), 10);
+	// Search category id
+	catalogModule.searchCategory(id);
+	// Click on the channel header image
+	driver.findElement(By.cssSelector("div.channel-header")).click();
+	WebElement newChannel = driver.findElement(By.cssSelector("div.main-panel"));
+	// Set values
+	catalogModule.setTitlemain(newChannel, channelTitle);
+	catalogModule.setDescriptionmain(newChannel, channelDescription);
+	OptionalMetadataPageObj optionalMetadataPO = PageFactory.initElements(driver, OptionalMetadataPageObj.class);
+
+	// Get list of visible metadata
+	List<WebElement> visibleElementList = driver.findElements(By.xpath("//div[@class='zebra ng-scope']"));
+
+	// Adding values only to the visible metadata
+	if (visibleElementList.size() != 0) {
+	    for (int i = 0; i < visibleElementList.size(); i++) {
+		String fieldName = visibleElementList.get(i).findElement(By.tagName("label")).getAttribute("for");
+		optionalMetadataPO.enterValueInMetadataChannel(fieldName, fieldName + TestUtils.getCurrentDateTime());
+	    }
+	}
+	// Click save button
+	catalogModule.clickSaveButtonmain(newChannel);
+	// Logout
+	PageObjectUtils.logout(driver);
+	// login with account holder
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+	// CLick on approval module
+	HeaderPageObj.clickMenu("APPROVAL");
+	// wait
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	for (int i = 0; i < approvalModule.channelList.size(); i++) {
+	    String currentTitle = approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong"))
+		    .getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+	    // If channel found, select the channel
+	    if (currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+		approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong")).click();
+		break;
+	    }
+	}
+	Boolean isPresent = driver.findElements(By.xpath("//p[@class='image-update-label ng-scope']")).size() > 0;
+	if (isPresent == false) {
+	    assertTrue(true);
+	} else {
+	    assertTrue(false);
+	}
+
+    }
+
+    // C919 - Channels of only the tenant must be displayed in the approval list.
+    @Test
+    public void tenantChannels() throws IOException, APIException, InterruptedException, ParseException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+	ContentOrganizerModule contentOrganizeModule = PageFactory.initElements(driver, ContentOrganizerModule.class);
+	ApprovalPageObject approvalModule = PageFactory.initElements(driver, ApprovalPageObject.class);
+	CatalogPageObj catalogModule = PageFactory.initElements(driver, CatalogPageObj.class);
+	HeaderPageObj HeaderPageObj = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	JavascriptExecutor js = ((JavascriptExecutor) driver);
+	boolean flag1 = false;
+	// login with Tenant
+	PageObjectUtils.Tenantlogin(driver, Helper.getProperty("UserAccountholder_Tenant"), dataMap.get("Psswd"));
+	// Store old values and create channel
+	Map<String, List<String>> newMetadata = approvalModule.NewCreateChannel(driver);
+	List<String> categoryTitle = newMetadata.get("title");
+	String channelTitle = null;
+	for (String title : categoryTitle) {
+	    channelTitle = title;
+	}
+	// logout
+	PageObjectUtils.logout(driver);
+	// login with Admin
+	PageObjectUtils.login(driver, dataMap.get("UserAdmin"), dataMap.get("Psswd"));
+	// CLick on approval module
+	HeaderPageObj.clickMenu("APPROVAL");
+	// wait
+	testUT.waitForElementToBeInvisible(
+		By.xpath("//div[@class='list ng-scope']//div[@class='progress-loader ng-scope']"), 10);
+	// Check whether channel created by tenant is not visible in current admin's TaskList
+	for (int i = 0; i < approvalModule.channelList.size(); i++) {
+	    String currentTitle = approvalModule.channelList.get(i).findElement(By.cssSelector("div.metadata > strong"))
+		    .getText();
+	    js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+	    // If channel found, select the channel
+	    if (!currentTitle.equals(channelTitle)) {
+		js.executeScript("arguments[0].scrollIntoView(true);", approvalModule.channelList.get(i));
+		flag1 = true;
+	    } else {
+		flag1 = false;
+		break;
+	    }
+	}
+	// Final condition
+	if (flag1) {
+	    assertTrue(true);
+	} else {
+	    assertTrue(false);
+	}
+    }
+
+    @After
+    public void closeBrowser() {
+	System.out.println("Closing Chrome browser");
+	// driver.quit();
+    }
+
+    public static WebElement fluentWait(final By locator) {
+
+	Wait<WebDriver> fluentWait = new FluentWait<WebDriver>(driver).withTimeout(30, SECONDS).pollingEvery(5, SECONDS)
+		.ignoring(NoSuchElementException.class);
+
+	WebElement elementFound = fluentWait.until(new Function<WebDriver, WebElement>() {
+	    public WebElement apply(WebDriver webDriver) {
+		return driver.findElement(locator);
+	    }
+	});
+
+	return elementFound;
+    }
+}

@@ -1,0 +1,14 @@
+package com.test.automation.uiAutomation.uiActions;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+
+public class Homepage {
+	
+	WebDriver driver;
+	
+	@FindBy(xpath="//div[@class='anonymous-login anonymous-text']/a")
+	WebElement logIn;
+
+}

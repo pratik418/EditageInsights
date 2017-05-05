@@ -1,0 +1,11 @@
+package com.test.automation.uiAutomation.uiActions;
+
+import org.openqa.selenium.WebDriver;
+
+public class Homepage {
+	
+	WebDriver driver;
+	
+	@FindBy(xpath="")
+
+}

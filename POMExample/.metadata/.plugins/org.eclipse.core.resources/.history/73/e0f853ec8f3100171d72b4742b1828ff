@@ -1,0 +1,2238 @@
+package com.vimond.automation.tests;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.google.common.base.Function;
+import com.gurock.testrail.APIException;
+import com.vimond.automation.PageObject.CatalogPageObj;
+import com.vimond.automation.PageObject.ContentPageObject;
+import com.vimond.automation.PageObject.HeaderPageObj;
+import com.vimond.automation.PageObject.ImageBankPageObj;
+import com.vimond.automation.PageObject.PageObjectUtils;
+import com.vimond.automation.PageObject.PersonalDetailsPageObj;
+import com.vimond.automation.PageObject.SignUpPageObj;
+import com.vimond.automation.PageObject.UserAdminPageObj;
+import com.vimond.automation.Utility.RestClient;
+import com.vimond.automation.Utility.TestUtils;
+import com.vimond.automation.controller.Helper;
+
+public class UserAdminModule {
+
+    private static WebDriver driver;
+
+    String channelTitle;
+    Map<String, String> dataMap;
+
+    @Before
+    public void openBrowser() throws IOException, APIException {
+
+	// Initialize env data
+	dataMap = Helper.intializeEnvTestData();
+
+	// If tests are remotely executed, then setup the Remote driver on BrowserStack
+	Boolean isRemoteExecution = Boolean.valueOf(Helper.getProperty("is_remote_execution"));
+	if (isRemoteExecution) {
+	    driver = Helper.setRemoteDriver();
+	} else {
+	    driver = Helper.setLocalChromeDriver();
+	}
+
+	driver.manage().window().maximize();
+	driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+	// Login Flow
+	driver.get(dataMap.get("VCC_URL"));
+
+	WebDriverWait wait = new WebDriverWait(driver, 5);
+
+	// Login flow
+	WebElement username = driver.findElement(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+
+	username.sendKeys(dataMap.get("UserAdmin"));
+	password.sendKeys(dataMap.get("Psswd"));
+
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+	// End of login flow
+
+    }
+
+    // C1: Default view of User Admin
+    @Test
+    public void defaultViewUserAdminTest() throws InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	/* Check default view of User Admin */
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+
+	/* Check if filters are reset */
+	// userAdminPO.clickFilterButton();
+
+	String selectedCompanyFilter = userAdminPO.getSelectedCompanyFilter();
+	String selectedStatusFilter = userAdminPO.getSelectedStatusFilter();
+	String selectedRoleFilter = userAdminPO.getSelectedRoleFilter();
+
+	// Verify if all the filters are reset
+	assertEquals(dataMap.get("DefaultCompanyFilter"), selectedCompanyFilter);
+	assertEquals(dataMap.get("DefaultStatusFilter"), selectedStatusFilter);
+	assertEquals(dataMap.get("DefaultRoleFilter"), selectedRoleFilter);
+
+	/* Check if the center pane is empty by default */
+	TestUtils utils = new TestUtils(driver);
+	Boolean flag1 = utils.checkElementIsPresent(By.cssSelector("div.admin-empty-content"));
+	Boolean flag2 = utils.checkTextIsPresent(By.cssSelector("div.aligner > p"), dataMap.get("DefaultMessage"));
+	assertTrue("Center pane of User admin is not empty by default", flag1);
+	assertTrue("Default text is not present in User admin as expected", flag1);
+    }
+
+    // C4: Create new user
+    @Test
+    public void newCreateUserTest() throws InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the "Add New User" button shown in the center pane
+	userAdminPO.clickAddNewUser();
+
+	// Get current date & time in order to create unique user
+	DateFormat dateFormat = new SimpleDateFormat("HHmmssddMM");
+	Date date = new Date();
+
+	// Create unique last name and email address values
+	String lastName = dataMap.get("LastName") + dateFormat.format(date);
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+
+	// Enter values in the text fields
+	userAdminPO.enterUserData(0, dataMap.get("FirstName")); // First Name
+
+	// get first name
+	String enteredUserFirstName = userAdminPO.getUserData(0);
+	userAdminPO.enterUserData(1, lastName); // Last Name
+	String enteredUserLastName = userAdminPO.getUserData(1);
+	userAdminPO.enterUserData(2, emailAddress); // Email
+	userAdminPO.enterUserData(3, "Demo111!"); // Password
+
+	String User = enteredUserFirstName.concat(" ").concat(enteredUserLastName);
+	// Select a role
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Click on Save button
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	// String searchInput=enteredUserLastName.substring(11);
+	userAdminPO.enterSearchUser(enteredUserLastName);
+
+	List<String> searchResult = new ArrayList<String>();
+
+	for (int i = 0; i < userAdminPO.searchResultList.size(); i++) {
+	    searchResult.add(userAdminPO.searchResultList.get(i).findElement(By.cssSelector("span.title")).getText());
+	}
+	System.out.println("list : " + searchResult);
+	System.out.println("username : " + User);
+
+	if (searchResult.contains(User)) {
+	    assertTrue(true);
+	    System.out.println("Passed for new user !!!!!");
+	} else {
+	    System.out.println("Failed for new user !!!!!");
+	    assertTrue(false);
+	}
+    }
+
+    // C: discard user
+    @Test
+    public void DiscardTest() throws InterruptedException, MalformedURLException, IOException, APIException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the "Add New User" button shown in the center pane
+	userAdminPO.clickAddNewUser();
+
+	// Get current date & time in order to create unique user
+	DateFormat dateFormat = new SimpleDateFormat("HHmmssddMM");
+	Date date = new Date();
+
+	// Create unique last name and email address values
+	String lastName = dataMap.get("LastName") + dateFormat.format(date);
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+
+	// Enter values in the text fields
+	userAdminPO.enterUserData(0, dataMap.get("FirstName")); // First Name
+	String enteredUserLastName_BeforeEdit = userAdminPO.getUserData(0);
+	// get first name
+
+	userAdminPO.enterUserData(1, lastName); // Last Name
+
+	userAdminPO.enterUserData(2, emailAddress); // Email
+	userAdminPO.enterUserData(3, dataMap.get("Psswd")); // Password
+
+	// Select a role
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Click on Save button
+	userAdminPO.clickNewUserSaveButton();
+
+	// edit values in the text fields
+	userAdminPO.enterUserData_unsaved(0, dataMap.get("FirstName_Edit")); // First Name
+	String enteredUserFirstName_AfterEdit = userAdminPO.getUserData_unsaved(0);
+
+	userAdminPO.clickDiscardButton();
+	// Thread.sleep(3000);
+	String enteredUserFirstName_AfterDiscard = userAdminPO.getUserData_Discard(0);
+
+	if (enteredUserFirstName_AfterDiscard.equals(enteredUserLastName_BeforeEdit)) {
+	    assertTrue(true);
+	    System.out.println("Passed for discard !!!!!");
+	} else {
+	    System.out.println("Failed for discard !!!!!");
+	    assertTrue(false);
+	}
+    }
+
+    // C7 :Update user status to Rejected/Deactivated
+    @Test
+    public void changeUserStatusTest() throws Exception {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	// this.newCreateUserTest();
+	boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false;
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	PersonalDetailsPageObj PersonalDetailsPO = PageFactory.initElements(driver, PersonalDetailsPageObj.class);
+	WebElement emaillink = driver.findElement(By.xpath("//a[@class='pluggable-user-email edit-user-action']"));
+	testUT.waitForElementToBeClickable(emaillink, 30);
+	headerPO.clickMenu(Helper.getProperty("MenuNameAccounts"));
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the "Add New User" button shown in the center pane
+	userAdminPO.clickAddNewUser();
+
+	// Get current date & time in order to create unique user
+	DateFormat dateFormat = new SimpleDateFormat("HHmmssddMM");
+	Date date = new Date();
+
+	// Create unique last name and email address values
+	String lastName = dataMap.get("LastName") + dateFormat.format(date);
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+
+	// Enter values in the text fields
+	userAdminPO.enterUserData(0, dataMap.get("FirstName")); // First Name
+	userAdminPO.enterUserData(1, lastName); // Last Name
+	// Get lastname
+	String enteredUserLastName = userAdminPO.getUserData(1);
+	userAdminPO.enterUserData(2, emailAddress); // Email
+	userAdminPO.enterUserData(3, "Demo111!"); // Password
+
+	// Select a role
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Click on Save button
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	userAdminPO.selectUserStatus("Awaiting approval");
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	userAdminPO.enterSearchUser(enteredUserLastName);
+
+	// Select the first result
+	userAdminPO.selectSearchResult(0);
+
+	// Wait for user to load
+	userAdminPO.checkProgressSpinnerShown();
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Select new Status
+	userAdminPO.selectUserStatus(dataMap.get("status"));
+
+	// verify label change in UI
+	// assertEquals("You have made changes to user", userAdminPO.getLabelForChange());
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='core-select denied focus has-content']"), 10);
+	userAdminPO.clickSaveButton();
+
+	// -------------------------------------------------
+	/* search for the user and verify the status */
+	// Search for user created
+	userAdminPO.enterSearchUser(enteredUserLastName);
+
+	// Select the first result
+	userAdminPO.selectSearchResult(0);
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='spinner-overlay']"), 10);
+	// verify that the status is updated correctly
+	if (dataMap.get("status").equals(userAdminPO.getUserStatus())) {
+	    flag1 = true;
+	} else {
+	    flag1 = false;
+	}
+	headerPO.clickMenu(Helper.getProperty("MenuNameAccounts"));
+
+	// Click on the "Add New User" button shown in the center pane
+	userAdminPO.clickAddNewUser();
+	// Create unique last name and email address values
+	String lastName2 = "Automatetest" + dateFormat.format(date);
+	String emailAddress2 = "automatevmdd+" + dateFormat.format(date) + "@vimond.com";
+
+	// Enter values in the text fields
+	userAdminPO.enterUserData(0, dataMap.get("FirstName")); // First Name
+	userAdminPO.enterUserData(1, lastName2); // Last Name
+	// Get lastname
+	String enteredUserLastName2 = userAdminPO.getUserData(1);
+	userAdminPO.enterUserData(2, emailAddress2); // Email
+	userAdminPO.enterUserData(3, "Demo111!"); // Password
+
+	// Select a role
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Click on Save button
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	userAdminPO.enterSearchUser(enteredUserLastName2);
+
+	// Select the first result
+	userAdminPO.selectSearchResult(0);
+
+	// Wait for user to load
+	userAdminPO.checkProgressSpinnerShown();
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Select new Status
+	userAdminPO.selectUserStatus("Deactivated");
+
+	// verify label change in UI
+	// assertEquals("You have made changes to user", userAdminPO.getLabelForChange());
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='core-select denied focus has-content']"), 10);
+	userAdminPO.clickSaveButton();
+
+	// -------------------------------------------------
+	/* search for the user and verify the status */
+	// Search for user created
+	userAdminPO.enterSearchUser(enteredUserLastName2);
+
+	// Select the first result
+	userAdminPO.selectSearchResult(0);
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='spinner-overlay']"), 10);
+	// verify that the status is updated correctly
+	if (userAdminPO.getUserStatus().equals("Deactivated")) {
+	    flag2 = true;
+	} else {
+	    flag2 = false;
+	}
+	// Logout
+	PageObjectUtils.logout(driver);
+	// Login with Rejected user
+	PageObjectUtils.login(driver, emailAddress, "Demo111!");
+	try {
+	    // Thread.sleep(600);
+	    WebElement profileeditor = driver.findElement(By.xpath("//a[@class='pluggable-user-email edit-user-action']"));
+	    testUT.waitForElementFluently(profileeditor, 10);
+	    boolean status = profileeditor.isDisplayed();
+	    if (status == true) {
+		flag3 = true;
+	    } else {
+		flag3 = false;
+	    }
+	    // Logout
+	    PageObjectUtils.logout(driver);
+	    // Login with Deactivated User
+	    PageObjectUtils.login(driver, emailAddress2, "Demo111!");
+	    WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	    testUT.waitForElementFluently(signInButton, 10);
+	    boolean status2 = signInButton.isDisplayed();
+	    if (status2 == true) {
+		flag4 = true;
+	    } else {
+		flag4 = false;
+	    }
+	} catch (Exception e) {
+	}
+	System.out.println(flag1);
+	System.out.println(flag2);
+	System.out.println(flag3);
+	System.out.println(flag4);
+	//if (flag1 && flag2 && flag3 && flag4) {
+	    assertTrue("User status gets updated successfully on Rejection/ Deactivation",flag1 && flag2 && flag3 && flag4);
+	//} else {
+	//}
+    }
+
+    // C6: Change User Status to Approved
+    @Test
+    public void changeUserStatusTestApproved() throws Exception {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	// this.newCreateUserTest();
+	boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false;
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	PersonalDetailsPageObj PersonalDetailsPO = PageFactory.initElements(driver, PersonalDetailsPageObj.class);
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the "Add New User" button shown in the center pane
+	userAdminPO.clickAddNewUser();
+
+	// Get current date & time in order to create unique user
+	DateFormat dateFormat = new SimpleDateFormat("HHmmssddMM");
+	Date date = new Date();
+
+	// Create unique last name and email address values
+	String lastName = dataMap.get("LastName") + dateFormat.format(date);
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+
+	// Enter values in the text fields
+	userAdminPO.enterUserData(0, dataMap.get("FirstName")); // First Name
+	userAdminPO.enterUserData(1, lastName); // Last Name
+	// Get lastname
+	String enteredUserLastName = userAdminPO.getUserData(1);
+	userAdminPO.enterUserData(2, emailAddress); // Email
+	userAdminPO.enterUserData(3, "Demo111!"); // Password
+
+	// Select a role
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Click on Save button
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	userAdminPO.selectUserStatus("Awaiting approval");
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	userAdminPO.enterSearchUser(enteredUserLastName);
+
+	// Select the first result
+	userAdminPO.selectSearchResult(0);
+
+	// Wait for user to load
+	userAdminPO.checkProgressSpinnerShown();
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Select new Status
+	userAdminPO.selectUserStatus("Approved");
+
+	// verify label change in UI
+	// assertEquals("You have made changes to user", userAdminPO.getLabelForChange());
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='core-select denied focus has-content']"), 10);
+	userAdminPO.clickSaveButton();
+
+	// -------------------------------------------------
+	/* search for the user and verify the status */
+	// Search for user created
+	userAdminPO.enterSearchUser(enteredUserLastName);
+
+	// Select the first result
+	userAdminPO.selectSearchResult(0);
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='spinner-overlay']"), 10);
+	// verify that the status is updated correctly
+	if (userAdminPO.getUserStatus().equals("Approved")) {
+	    assertTrue(true);
+	} else {
+	    assertTrue(false);
+	}
+    }
+
+    // C9 : Become This User Test
+    @Test
+    public void becomeThisUserTest() throws InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	/*
+	 * HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	 * 
+	 * headerPO.clickMoreMenu(); userAdminPO.clickUserAdminMenu();
+	 */
+
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the "Add New User" button shown in the center pane
+	userAdminPO.clickAddNewUser();
+
+	// Get current date & time in order to create unique user
+	DateFormat dateFormat = new SimpleDateFormat("HHmmssddMM");
+	Date date = new Date();
+
+	// Create unique last name and email address values
+	String lastName = dataMap.get("LastName") + dateFormat.format(date);
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+
+	// Enter values in the text fields
+	userAdminPO.enterUserData(0, dataMap.get("FirstName")); // First Name
+	userAdminPO.enterUserData(1, lastName); // Last Name
+	// Get lastname
+	String enteredUserLastName = userAdminPO.getUserData(1);
+	userAdminPO.enterUserData(2, emailAddress); // Email
+	userAdminPO.enterUserData(3, "Demo111!"); // Password
+
+	// Select a role
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Click on Save button
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	userAdminPO.selectUserStatus("Approved");
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+
+	// Click on Become this User button
+	userAdminPO.clickBecomeThisUserButton();
+
+	// Wait for page to load
+	userAdminPO.checkProgressSpinnerShown();
+	userAdminPO.checkProgressSpinnerNotShown();
+
+	// Verify new user's email in Page Header
+	String userEmailActual = headerPO.getUserEmailFromHeader();
+
+	// Verify if both the email IDs are same
+	assertEquals(emailAddress, userEmailActual);
+
+    }
+
+    // C4: Create new user
+    @Test
+    public void newSearchUsers() throws Exception {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the "Add New User" button shown in the center pane
+	userAdminPO.clickAddNewUser();
+
+	// Get current date & time in order to create unique user
+	DateFormat dateFormat = new SimpleDateFormat("HHmmssddMM");
+	Date date = new Date();
+
+	// Create unique last name and email address values
+	String lastName = dataMap.get("LastName") + dateFormat.format(date);
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+	String firstName = dataMap.get("FirstName") + dateFormat.format(date);
+	// Enter values in the text fields
+	userAdminPO.enterUserData(0, firstName); // First Name
+
+	// get first name
+	String enteredUserFirstName = userAdminPO.getUserData(0);
+
+	userAdminPO.enterUserData(1, lastName); // Last Name
+	// get last name
+	String enteredUserLastName = userAdminPO.getUserData(1);
+
+	userAdminPO.enterUserData(2, emailAddress); // Email
+	userAdminPO.enterUserData(3, dataMap.get("Psswd")); // Password
+
+	String User = enteredUserFirstName.concat(" ").concat(enteredUserLastName);
+
+	// Select a role
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+
+	// Click on Save button
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+
+	// search using first name
+	userAdminPO.enterSearchUser(enteredUserFirstName.toLowerCase());
+	userAdminPO.enterSearchUser(enteredUserFirstName.toUpperCase());
+
+	List<String> searchResult_FirstName = new ArrayList<String>();
+	List<String> searchResult_FirstName_Lower = new ArrayList<String>();
+	List<String> searchResult_FirstName_Upper = new ArrayList<String>();
+
+	for (int i = 0; i < userAdminPO.searchResultList.size(); i++) {
+	    searchResult_FirstName.add(userAdminPO.searchResultList.get(i).findElement(By.cssSelector("span.title"))
+		    .getText());
+	}
+
+	System.out.println("username : " + User);
+
+	boolean flag_1 = false, flag_2 = false, flag_3 = false;
+
+	if (searchResult_FirstName.get(0).contains(enteredUserFirstName)) {
+	    flag_1 = true;
+	    System.out.println("Passed for search with first name !!!!!");
+	} else {
+	    System.out.println("Failed for search with first name  !!!!!");
+	    flag_1 = false;
+	}
+
+	// search using Last name
+	userAdminPO.enterSearchUser(enteredUserLastName);
+
+	List<String> searchResult_LastName = new ArrayList<String>();
+
+	for (int i = 0; i < userAdminPO.searchResultList.size(); i++) {
+	    searchResult_LastName.add(userAdminPO.searchResultList.get(i).findElement(By.cssSelector("span.title"))
+		    .getText());
+	}
+	System.out.println("list : " + searchResult_LastName);
+	System.out.println("username : " + User);
+
+	if (searchResult_LastName.get(0).contains(enteredUserLastName)) {
+	    flag_2 = true;
+	    System.out.println("Passed for search with last name !!!!!");
+	} else {
+	    System.out.println("Failed for search with last name  !!!!!");
+	    flag_2 = false;
+	}
+
+	// search using combination of first name and Last name
+	userAdminPO.enterSearchUser(User);
+
+	List<String> searchResult_user = new ArrayList<String>();
+
+	for (int i = 0; i < userAdminPO.searchResultList.size(); i++) {
+	    searchResult_user.add(userAdminPO.searchResultList.get(i).findElement(By.cssSelector("span.title")).getText());
+	}
+	System.out.println("list : " + searchResult_user);
+	System.out.println("username : " + User);
+
+	if (searchResult_user.get(0).contains(User)) {
+	    flag_3 = true;
+	    System.out.println("Passed for search with combination of first name and Last name !!!!!");
+	} else {
+	    System.out.println("Failed for first name and Last name !!!!!");
+	    flag_3 = false;
+	}
+
+	// case insensitivity test
+	for (int i = 0; i < userAdminPO.searchResultList.size(); i++) {
+	    searchResult_FirstName_Lower.add(userAdminPO.searchResultList.get(i).findElement(By.cssSelector("span.title"))
+		    .getText());
+	}
+	System.out.println("list : " + searchResult_FirstName_Lower);
+
+	for (int i = 0; i < userAdminPO.searchResultList.size(); i++) {
+	    searchResult_FirstName_Upper.add(userAdminPO.searchResultList.get(i).findElement(By.cssSelector("span.title"))
+		    .getText());
+	}
+	System.out.println("list : " + searchResult_FirstName_Upper);
+
+	boolean flag_case = false;
+	List<String> Flag_caseInsensitivityTest = new ArrayList<String>();
+	String flag_caseString;
+	for (int j = 0; j < userAdminPO.searchResultList.size(); j++) {
+	    if (searchResult_FirstName_Upper.get(j).equalsIgnoreCase(searchResult_FirstName_Lower.get(j))) {
+
+		flag_caseString = "True";
+		Flag_caseInsensitivityTest.add(flag_caseString);
+		System.out.println("Passed for search case insensitivity!!!!!");
+	    } else {
+		System.out.println("Failed for first name and Last name !!!!!");
+
+		flag_caseString = "False";
+		Flag_caseInsensitivityTest.add(flag_caseString);
+	    }
+	}
+
+	if (!Flag_caseInsensitivityTest.contains("False")) {
+	    flag_case = true;
+	    System.out.println("passed for case insensitive !!!!!");
+	} else {
+	    System.out.println("failed for case insensitive !!!!!");
+	    flag_case = false;
+
+	}
+	// End of case insensitivity test
+
+	if (flag_1 == true && flag_2 == true && flag_3 == true && flag_case == true) {
+	    assertTrue(true);
+	    System.out.println("Passed for search with combination of first name and Last name !!!!!");
+	} else {
+	    System.out.println("Failed for first name and Last name !!!!!");
+	    assertTrue(false);
+	}
+    }
+
+    // C14 : Edit user
+    @Test
+    public void editUserTest() throws InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// First create a new user, then edit the same
+
+	userAdminPO.clickAddNewUser();
+
+	// Get current date & time in order to create unique user
+	DateFormat dateFormat = new SimpleDateFormat("HHmmssddMM");
+	Date date = new Date();
+
+	// Thread.sleep(1000);
+	String lastName = dataMap.get("LastName") + dateFormat.format(date);
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+
+	userAdminPO.enterUserData(0, dataMap.get("FirstName")); // First Name
+	userAdminPO.enterUserData(1, lastName); // Last Name
+	userAdminPO.enterUserData(2, emailAddress); // Email
+	userAdminPO.enterUserData(3, dataMap.get("Psswd")); // Password
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	userAdminPO.clickNewUserSaveButton();
+	// New user created
+
+	// ------------------------------------------------
+	/* search for the user and edit few details */
+
+	// Refresh the page
+	headerPO.clickMenu(Helper.getProperty("MenuNameAccounts"));
+
+	// Search for user created
+	userAdminPO.clickSearchField();
+	userAdminPO.enterSearchUser(dataMap.get("FirstName") + " " + lastName);
+	userAdminPO.clickSearchButton();
+
+	// Select the first user in the result
+	userAdminPO.selectSearchResult(0);
+
+	// Edit the user data
+	userAdminPO.enterUserData(0, dataMap.get("FirstName") + "2"); // First Name
+	userAdminPO.enterUserData(1, lastName + "2"); // Last Name
+	userAdminPO.enterUserData(4, dataMap.get("Title")); // Title
+	userAdminPO.enterUserData(5, dataMap.get("Phone")); // Phone
+	userAdminPO.enterUserData(6, dataMap.get("Address")); // Address
+	userAdminPO.enterUserData(7, dataMap.get("City")); // City
+	userAdminPO.enterUserData(8, dataMap.get("ZipCode")); // Zip code
+
+	// save the user
+	userAdminPO.clickSaveButton();
+
+	// ------------------------------------------------
+	/* search for the user again and verify if the edit is successful */
+	// search for user
+	userAdminPO.clickSearchField();
+	userAdminPO.enterSearchUser(dataMap.get("FirstName") + " " + lastName);
+	userAdminPO.clickSearchButton();
+
+	// Select the first user in the result
+	userAdminPO.selectSearchResult(0);
+
+	// validating if the edit was successfull on all the fields
+	assertEquals("Editing First Name not successful", dataMap.get("FirstName") + "2", userAdminPO.getUserData(0));
+	assertEquals("Editing Last Name not successful", lastName + "2", userAdminPO.getUserData(1));
+	assertEquals("Editing Title not successful", dataMap.get("Title"), userAdminPO.getUserData(4));
+	assertEquals("Editing Address not successful", dataMap.get("Phone"), userAdminPO.getUserData(5));
+	assertEquals("Editing Address not successful", dataMap.get("Address"), userAdminPO.getUserData(6));
+	assertEquals("Editing City not successful", dataMap.get("City"), userAdminPO.getUserData(7));
+	assertEquals("Editing ZipCode not successful", dataMap.get("ZipCode"), userAdminPO.getUserData(8));
+    }
+
+    // Filter by Status
+    @Test
+    public void filterUserByStatusTest() throws InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// -------------------------------------------------
+	/* check with "New" status */
+	userAdminPO.selectStatusValue("All status");
+	driver.navigate().refresh();
+	userAdminPO.checkProgressSpinnerNotShown();
+	String[] statusValues = { "New", "Confirmed", "Awaiting approval", "Approved", "Rejected", "Deactivated" };
+
+	for (int i = 0; i < statusValues.length; i++) {
+	    // Select given status
+	    userAdminPO.selectStatusValue(statusValues[i]);
+	    testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select focus has-content no-label']"), 10);
+	    String selectedStatus = userAdminPO.getSelectedStatusFilter();
+
+	    // Check progress spinner
+	    userAdminPO.checkProgressSpinnerShown();
+	    userAdminPO.checkProgressSpinnerNotShown();
+
+	    // Check if search results is 0
+	    if (userAdminPO.searchResults.size() == 0) {
+		System.out.println("No users found for status : " + selectedStatus);
+	    }
+	    // else verify the status
+	    else {
+		userAdminPO.selectSearchResult(0);
+		testUT.waitForElementToBeInvisible(By.xpath("div[@class='spinner-overlay']"), 10);
+		assertEquals(statusValues[i], userAdminPO.getUserStatus());
+		System.out.print(userAdminPO.getUserStatus());
+	    }
+	}
+
+    }
+
+    // Delete User
+    @Test
+    public void newDeleteUserTest() throws InterruptedException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+
+	// Click on Accounts tab
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Search for an existing user
+	userAdminPO.clickSearchField();
+	userAdminPO.enterSearchUser("Automation-FN");
+
+	// Select user
+	userAdminPO.selectSearchResult(0);
+
+	String currentStatus = userAdminPO.getUserStatus();
+
+	// Wait for user to load in center pane
+	userAdminPO.checkProgressSpinnerShown();
+	userAdminPO.checkProgressSpinnerNotShown();
+
+	// Select "Deactivated" Status
+	userAdminPO.selectUserStatus("Deactivated");
+
+	userAdminPO.clickSaveButton();
+
+	// -------------------------------------------------
+	/* search for the user and verify the status */
+	// Search for user created
+	userAdminPO.clickSearchField();
+	userAdminPO.enterSearchUser(dataMap.get("searchUser"));
+
+	// Select the first result
+	userAdminPO.selectSearchResult(0);
+
+	// verify that the status is updated correctly
+	assertEquals("Status not updated correctly", "Deactivated", userAdminPO.getUserStatus());
+    }
+
+    // C3766 - User is able to add an new user under the same company on click of Plus(+) icon
+    @Test
+    public void companyAddNewUser() throws InterruptedException, MalformedURLException, IOException, APIException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	// Click on Profile Editor
+	headerPO.clickUserEmailLink();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu("ACCOUNTS");
+	// Click on the First User
+	userAdminPO.clickFirstAccountsUsername();
+	// Get the Email Id from header
+	String emailID = userAdminPO.getEmailHeaderText();
+	// Get the Company Name from the header
+	String companyname = userAdminPO.getCompanyName();
+	// CLick on the '+' Sign
+	userAdminPO.clickAddUser();
+	// Unique firstname appended with seconds
+	String firstname = dataMap.get("FirstName") + dateFormat.format(date);
+	// Unique emailid appended with seconds
+	String email = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+	// Set Firstname
+	userAdminPO.setFirstName(firstname);
+	// Set LastName
+	userAdminPO.setLastName(dataMap.get("LastName"));
+	// Set Email
+	userAdminPO.setEmail(email);
+	// Set password
+	userAdminPO.setPassword("Demo111!");
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Wait for the Role class to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select focus']"), 10);
+	// Click on Save button in Lightbox
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	// Implicit wait
+	driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	// Enter the Firstname in Search
+	userAdminPO.enterSearchUser(firstname);
+	// Click on Searh Icon
+	userAdminPO.clickSearchButton();
+	// Wait
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the searched Username
+	userAdminPO.clickFirstAccountsUsername();
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='spinner-overlay']"), 10);
+	// Get the Email Header from the New Username
+	String emailIDheader2 = userAdminPO.getEmailHeaderText();
+	// Get the email text from the inputbox
+	String emailID2 = userAdminPO.getEmailText();
+	// Get the Company name
+	String companyname2 = userAdminPO.getCompanyName();
+	// Check the company, email header and the email text matches the required condition
+	if (companyname2.equalsIgnoreCase(companyname) && emailIDheader2.equalsIgnoreCase(emailID)
+		&& emailID2.equalsIgnoreCase(email)) {
+	    System.out.println("User is successfully created on '+' sign click");
+	    assertTrue(true);
+
+	} else {
+	    System.out.println("User creation failed  on '+' sign click");
+	    assertTrue(false);
+	}
+    }
+
+    // C3768 - User is able to add an new user under the same company on click of Plus(+) icon
+    @Test
+    public void discardButton() throws InterruptedException, MalformedURLException, IOException, APIException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	// Click on Profile Editor
+	headerPO.clickUserEmailLink();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu("ACCOUNTS");
+	// Click on the First User
+	userAdminPO.clickFirstAccountsUsername();
+	// CLick on the "Edit" icon
+	userAdminPO.clickEditUser();
+	// Set new Unique Company name
+	String newCompanyname = "Test" + dateFormat.format(date);
+	// Get old company name
+	String companyName = userAdminPO.getCompanyEditName();
+	// Set the new company name
+	userAdminPO.companyEditName.sendKeys(Keys.HOME, Keys.chord(Keys.SHIFT, Keys.END), newCompanyname);
+	// Click on Discard Button
+	userAdminPO.discardButtonClick();
+	// Get company name after edit
+	String companyName2 = userAdminPO.getCompanyEditName();
+	// Check if company details are not saved
+	if (companyName.equalsIgnoreCase(companyName2) && !companyName2.equalsIgnoreCase(newCompanyname)) {
+	    System.out.println("On Discard button click changes doesn't gets saved");
+	    assertTrue(true);
+	} else {
+
+	    System.out.println("On Discard button click changes gets saved");
+	    assertTrue(false);
+	}
+
+    }
+
+    // C3764 - Edited company details of the user are reflected on the UI
+    @Test
+    public void editCompanyDetails() throws InterruptedException, MalformedURLException, IOException, APIException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+	// Go to User Admin page
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	// Click on Profile Editor
+	headerPO.clickUserEmailLink();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu("ACCOUNTS");
+	// Wait
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the First User
+	userAdminPO.clickFirstAccountsUsername();
+	// CLick on the '+' Sign
+	userAdminPO.clickAddUser();
+	// Unique firstname appended with seconds
+	String firstname = dataMap.get("FirstName") + dateFormat.format(date);
+	// Unique email appended with seconds
+	String email = dataMap.get("Email") + dateFormat.format(date) + "@vtmond.com";
+	// Set Firstname
+	userAdminPO.setFirstName(firstname);
+	// Set LastName
+	userAdminPO.setLastName(dataMap.get("LastName"));
+	// Set EmailemailID
+	userAdminPO.setEmail(email);
+	// Set password
+	userAdminPO.setPassword("Demo111!");
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Wait for Roles tag class to be invisible
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select focus']"), 10);
+	// Click on Save button in Lightbox
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for lightbox class to be invisible
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 10);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	// Implicit wait
+	driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	// click on the More button and Select Accounts
+	headerPO.clickMenu("ACCOUNTS");
+	// Wait
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the First User
+	userAdminPO.clickFirstAccountsUsername();
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='spinner-overlay']"), 10);
+	// CLick on the "Edit" icon
+	userAdminPO.clickEditUser();
+	// Set unique new company name
+	String newCompanyname = "Test" + dateFormat.format(date);
+	// Set new company name
+	userAdminPO.companyEditName.sendKeys(Keys.HOME, Keys.chord(Keys.SHIFT, Keys.END), newCompanyname);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	// Get the company name
+	String companyName = userAdminPO.getCompanyEditName();
+	// Implicit wait
+	driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	// Enter the Firstname in Search
+	userAdminPO.enterSearchUser(firstname);
+	// Click on Searh Icon
+	userAdminPO.clickSearchButton();
+	// Wait
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the searched Username
+	userAdminPO.clickFirstAccountsUsername();
+	testUT.waitForElementToBeInvisible(By.xpath("div[@class='spinner-overlay']"), 10);
+	// Get company Name from header
+	String companyNameHeader = userAdminPO.getCompanyName();
+	// CLick on the "Edit" icon
+	userAdminPO.clickEditUser();
+	// Get company name from the newly created user
+	String companyname2 = userAdminPO.getCompanyEditName();
+	// Check if company name changes reflected for old user and new user
+	if (companyName.equalsIgnoreCase(newCompanyname) && companyNameHeader.contains(newCompanyname)
+		&& companyname2.equalsIgnoreCase(newCompanyname)) {
+	    System.out
+		    .println("Edited company details is getting reflected on the UI of current user and other users of same company.");
+	    assertTrue(true);
+	} else {
+
+	    System.out
+		    .println("Edited company details is not getting reflected on the UI of current user and other users of same company.");
+	    assertTrue(false);
+	}
+
+    }
+
+    // C533 - Update company details
+    @Test
+    public void updateDetails() throws InterruptedException, MalformedURLException, IOException, APIException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	// Click on Profile Editor
+	headerPO.clickUserEmailLink();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the First User
+	userAdminPO.clickFirstAccountsUsername();
+	// CLick on the "Edit" icon
+	userAdminPO.clickEditUser();
+	// Set new Unique Company name
+	String newCompanyname = "Test" + dateFormat.format(date);
+	// Set the new company name
+	userAdminPO.companyEditName.sendKeys(Keys.HOME, Keys.chord(Keys.SHIFT, Keys.END), newCompanyname);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	// Get company name text
+	String companyName = userAdminPO.getCompanyEditName();
+	// Get the Company Name from the header
+	String companyName2 = userAdminPO.getCompanyName();
+	// Check if company details are saved
+	if (companyName.equalsIgnoreCase(newCompanyname) && companyName2.contains(newCompanyname)) {
+	    System.out.println("Company Details gets updated on click of Save button");
+	    assertTrue(true);
+	} else {
+
+	    System.out.println("Company Details updation gets failed on click of Save button");
+	    assertTrue(false);
+	}
+
+    }
+
+    // C198 - User created for one tenant must not be able to login into other tenant
+    @Test
+    public void loginUserTenant() throws InterruptedException, MalformedURLException, IOException, APIException {
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	// Click on Profile Editor
+	headerPO.clickUserEmailLink();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu(Helper.getProperty("MenuNameAccounts"));
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the First User
+	userAdminPO.clickFirstAccountsUsername();
+	// CLick on the '+' Sign
+	userAdminPO.clickAddUser();
+	// Unique firstname appended with seconds
+	String firstname = dataMap.get("FirstName") + dateFormat.format(date);
+	// Unique emailid appended with seconds
+	String email = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+	// Set Firstname
+	userAdminPO.setFirstName(firstname);
+	// Set LastName
+	userAdminPO.setLastName(dataMap.get("LastName"));
+	// Set Email
+	userAdminPO.setEmail(email);
+	// Set password
+	userAdminPO.setPassword("Demo111!");
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Wait for the Role class to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select focus']"), 10);
+	// Click on Save button in Lightbox
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	// CLick on Save button in the footer
+	testUT.waitForElementToBeInvisible(By.cssSelector("core-modal-overlay"), 10);
+	userAdminPO.clickSaveButton();
+	// Logout of the application
+	PageObjectUtils.logout(driver);
+	// Login flow with Tenant URL
+	PageObjectUtils.Tenantlogin(driver, email, "Demo111!");
+	// Wait
+	testUT.waitForElementFluently(userAdminPO.error, 10);
+	// Verify if Error message appears
+	if (userAdminPO.getErrorMessage().equalsIgnoreCase("Username or password invalid")) {
+	    assertTrue(true);
+	    System.out.println("User created for one tenant must not be able to login into other tenant. Passed");
+	} else {
+	    System.out.println("User created for one tenant must not be able to login into other tenant. Failed");
+	    assertTrue(false);
+	}
+    }
+
+    // C641 - Password policy while creating new users.
+    @Test
+    public void passwordPolicy() throws InterruptedException, MalformedURLException, IOException, APIException {
+	boolean flagb = false, flag1 = false, flag2 = false, flag3 = false;
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	// Click on Profile Editor
+	headerPO.clickUserEmailLink();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu("ACCOUNTS");
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Click on the First User
+	userAdminPO.clickFirstAccountsUsername();
+	// CLick on the '+' Sign
+	userAdminPO.clickAddUser();
+	// Unique firstname appended with seconds
+	String firstname = dataMap.get("FirstName") + dateFormat.format(date);
+	// Unique emailid appended with seconds
+	String email = dataMap.get("Email") + dateFormat.format(date) + "@vimond.com";
+	// Set Firstname
+	userAdminPO.setFirstName(firstname);
+	// Set LastName
+	userAdminPO.setLastName(dataMap.get("LastName"));
+	// Set Email
+	userAdminPO.setEmail(email);
+	// Set password
+	userAdminPO.setPassword("");
+	// Click on Save button in Lightbox
+	userAdminPO.clickNewUserSaveButton();
+	// If Password is Blank
+	if (userAdminPO.getBlankPasswordError().equalsIgnoreCase("Password can't be blank")) {
+	    flagb = true;
+	}
+	// Set password
+	userAdminPO.setPassword("Demo");
+	// Click on Save button in Lightbox
+	userAdminPO.clickNewUserSaveButton();
+	// If password doesn't max character validation
+	if (userAdminPO.getErrorMessage().equalsIgnoreCase("Password need to be at least 8 characters long.")) {
+	    flag1 = true;
+	}
+	// Set password
+	userAdminPO.setPassword("DemoDemo");
+	// Click on Save button in Lightbox
+	userAdminPO.clickNewUserSaveButton();
+	// If password doesn't satisy the required uppercase, special character validation
+	if (userAdminPO.getErrorMessage().equalsIgnoreCase(
+		"Password must contain an uppercase letter, a number and a special character.")) {
+	    flag2 = true;
+	}
+
+	// Set password
+	userAdminPO.setPassword("Demo111!");
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Wait for the Role class to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select focus']"), 10);
+	// Click on Save button in Lightbox
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='spinner-overlay']"), 10);
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	// Implicit wait
+	driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	// Enter the Firstname in Search
+	userAdminPO.enterSearchUser(firstname);
+	// Click on Searh Icon
+	userAdminPO.clickSearchButton();
+	// Click on the searched Username
+	userAdminPO.clickFirstAccountsUsername();
+	// If password entered correctly user is created
+	if (firstname.equalsIgnoreCase(userAdminPO.getFirstName())) {
+	    flag3 = true;
+	}
+	// To verify Password policy Test case Passed/failed result
+	if (flagb && flag1 && flag2 && flag3) {
+	    assertTrue(true);
+	    System.out.println("Password policy while creating new users. Passed");
+	} else {
+	    System.out.println("Password policy while creating new users. Failed");
+	    assertTrue(false);
+	}
+
+    }
+
+    // C3662 - Display error message if invalid file is uploaded
+    @Test
+    public void imageValidation() throws InterruptedException, MalformedURLException, IOException, APIException {
+	boolean flag1 = false;
+	// Get Class.method name to initialize test data
+	String className = this.getClass().toString().replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(className + "." + methodName);
+	System.out.println("Inside test " + methodName);
+	// ------------------------------------------------------------------------------------------------------------------
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+
+	// Go to User Admin page
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// Click on Profile Editor
+	headerPO.clickUserEmailLink();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu(dataMap.get("MenuAccounts"));
+	// Click on the First User
+	userAdminPO.clickFirstAccountsUsername();
+	String parentPath = new File(System.getProperty("user.dir")).getParentFile().getAbsolutePath();
+	String File_path = (parentPath + "\\VimondAutomation\\resources\\Vimond.jpg");
+	// CLick on the "Edit" icon
+	userAdminPO.clickEditUser();
+	userAdminPO.checkProgressSpinnerNotShown();
+	userAdminPO.uploadImage(File_path);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+
+	if (userAdminPO.getErrorInvalidImage().equalsIgnoreCase("Failed upload on main")) {
+	    flag1 = true;
+	    
+	}
+	// To verify that tags is stored for tenant and same tag doesn't gets stored for another tenant
+	if (flag1) {
+	    assertTrue("Error message is displayed if invalid file is uploaded",true);
+	    System.out.println("Error message is displayed if invalid file is uploaded. Passed");
+	} else {
+	    System.out.println("Error message is not  if invalid file invalid file is uploaded. Failed");
+	    assertTrue("Error message is not  if invalid file invalid file is uploaded",false);
+	}
+    }
+
+    // C3661 - Add image for the Company
+    @Test
+    public void addImageCompany() throws Exception {
+	boolean flag1 = false, flag2 = false, flag3 = false;
+	ImageBankPageObj ImageBankPageObject = PageFactory.initElements(driver, ImageBankPageObj.class);
+	SignUpPageObj SignUpPageObject = PageFactory.initElements(driver, SignUpPageObj.class);
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// test data fetching from testrail
+	String className = this.getClass().toString();
+	String classname1 = className.replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(classname1 + "." + methodName);
+	// Restclient object
+	RestClient restClient = new RestClient();
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	// Unique Email Address
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vmmond.com";
+	// Unique Firstname
+	String firstname = dataMap.get("FirstName") + dateFormat.format(date);
+	// Logout of the application
+	PageObjectUtils.logout(driver);
+	// Click Sign Up button
+	SignUpPageObject.clickEmailSignUpBTN();
+	// Fill the Details
+	SignUpPageObject.enterFirstName(firstname);
+	SignUpPageObject.enterLastName(dataMap.get("LastName"));
+	SignUpPageObject.enterEmailId(emailAddress);
+	SignUpPageObject.enterPassword("Demo111!");
+	SignUpPageObject.enterConfirmPassword("Demo111!");
+	SignUpPageObject.clickMainSignUpButton();
+	// API call to change the status to validated
+	restClient.adminConfirmation(emailAddress, "VALIDATED", "");
+	// Login
+	driver.get(dataMap.get("VCC_URL"));
+	WebDriverWait wait = new WebDriverWait(driver, 5);
+
+	// Login flow
+	WebElement username = driver.findElement(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	testUT.waitForElementFluently(username, 10);
+	username.sendKeys(emailAddress);
+	testUT.waitForElementFluently(password, 10);
+	password.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+	// Fill the Sign Up details
+	SignUpPageObject.enterTitle(dataMap.get("TitleReg"));
+	SignUpPageObject.clickNextBTN();
+	Thread.sleep(600);
+	SignUpPageObject.Country.click();
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select dark']"), 10);
+	SignUpPageObject.selectCountry(104);
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select dark focus']"), 10);
+	SignUpPageObject.enterCity(dataMap.get("City"));
+	SignUpPageObject.enterPostalCode(dataMap.get("PostalCode"));
+	SignUpPageObject.enterAddress(dataMap.get("Address"));
+	SignUpPageObject.enterPhoneNo(dataMap.get("PhoneNo"));
+	SignUpPageObject.clickMainSignUpButton();
+	SignUpPageObject.enterPublisherName("Vim India");
+	SignUpPageObject.enterBuisinessId("78356");
+	SignUpPageObject.enterPublisherEmail("vimond@vimond.in");
+	driver.findElement(By.xpath("//button[@class='cms-button button upload primary']")).click();
+	// Change the status to Approved through API call
+	restClient.adminConfirmation(emailAddress, "APPROVED", "");
+	// Login
+	driver.get(dataMap.get("VCC_URL"));
+	wait = new WebDriverWait(driver, 5);
+
+	// Login flow
+	username = driver.findElement(By.name("username"));
+	password = driver.findElement(By.id("password"));
+	testUT.waitForElementFluently(username, 10);
+	username.sendKeys(emailAddress);
+	testUT.waitForElementFluently(password, 10);
+	password.sendKeys(dataMap.get("Psswd"));
+	signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu(dataMap.get("MenuAccounts"));
+	// Implicit wait
+	driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	// Enter the Firstname in Search
+	userAdminPO.enterSearchUser(firstname);
+	// Click on Searh Icon
+	userAdminPO.clickSearchButton();
+	// Thread.sleep(2000);
+	// Click on the searched Username
+	userAdminPO.clickFirstAccountsUsername();
+	// Thread.sleep(600);
+	// CLick on the "Edit" icon
+	userAdminPO.clickEditUser();
+	// Image Upload Process
+	String parentPath = new File(System.getProperty("user.dir")).getParentFile().getAbsolutePath();
+	String File_path = (parentPath + "\\VimondAutomation\\resources\\vimond_org.jpg");
+	userAdminPO.checkProgressSpinnerNotShown();
+	userAdminPO.uploadImage(File_path);
+	Thread.sleep(600);
+	// CLick on Upload Image in Image bank Icon
+	userAdminPO.clickUploadImageIcon();
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	// Thread.sleep(600);
+	// Verify the Success message for image upload
+	try {
+	    if (userAdminPO.getUploadImageMessage().equalsIgnoreCase("Uploaded main")) {
+		flag1 = true;
+		assertTrue("Image uploaded secessfuly !! ",flag1);
+	    }
+	} catch (Exception e) {
+	}
+	// Refresh the page
+	driver.navigate().refresh();
+	// Wait
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Enter the Firstname in Search
+	userAdminPO.enterSearchUser(firstname);
+	// Click on Searh Icon
+	userAdminPO.clickSearchButton();
+	// Thread.sleep(600);
+	// Click on the searched Username
+	userAdminPO.clickFirstAccountsUsername();
+	// Thread.sleep(600);
+	// CLick on the "Edit" icon
+	userAdminPO.clickEditUser();
+	// Wait
+	userAdminPO.checkProgressSpinnerNotShown();
+	// Substring to find the common Word in the Main image
+	String imgID1 = userAdminPO.getUploadImagePath();
+	int index1 = imgID1.indexOf("img/");
+	int index2 = imgID1.indexOf("?");
+	String imgNewId1 = imgID1.substring(index1, index2);
+	// Substring to find the common Word in the Header image
+	String imgID2 = userAdminPO.getHeaderImagePath();
+	int index3 = imgID2.indexOf("img/");
+	int index4 = imgID2.indexOf("?");
+	String imgNewId2 = imgID2.substring(index3, index4);
+	// Condition to check the common element is present in both the images path
+	try {
+	    if (imgNewId1.contains(imgNewId2)) {
+		flag2 = true;
+		assertTrue("common element is present in both the images path !! ",flag2);
+	    }
+	} catch (Exception e) {
+	}
+	// Click ImageBank menu
+	ImageBankPageObject.clickImageBankMenu();
+	// Search with the image name
+	ImageBankPageObject.enterSearchImage("vimond_org");
+	// Click Search Image
+	try {
+	    ImageBankPageObject.ClickSearchedImage();
+
+	    String Title;
+	    Title = ImageBankPageObject.SelectrImage_Title.getAttribute("value");
+	    String searchKey = ImageBankPageObject.SearchImage.getAttribute("value");
+	    Thread.sleep(600);
+	    // To verify that search image string matches with the title text
+	    if (Title.contains(searchKey)) {
+		flag3 = true;
+		assertTrue("search image string matches with the title text !! ",flag3);
+	    }
+	} catch (Exception e) {
+	}
+	System.out.println(flag1);
+	System.out.println(flag2);
+	System.out.println(flag3);
+	// Verify whether Test Case Passed or Failed
+	/*if (flag1 && flag2 && flag3) {
+	    assertTrue(true);
+	    System.out.println("Add image for the Company. Passed");
+	} else {
+	    System.out.println("Add image for the Company. Failed");
+	    assertTrue(false);
+	}*/
+    }
+
+    // C534 - Support pagination when listing admin users
+    @Test
+    public void supportPagination() throws Exception {
+	// Boolean Delaration
+	boolean flag1 = false, flag2 = false, flag3 = false;
+	// Calling Page Objects
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// RestClient Object
+	RestClient restClient = new RestClient();
+	// test data fetching from testrail
+	String className = this.getClass().toString();
+	String classname1 = className.replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(classname1 + "." + methodName);
+	//
+	// click on the More button and Select Accounts
+	headerPO.clickMenu(Helper.getProperty("MenuNameAccounts"));
+	// Wait
+	userAdminPO.checkProgressSpinnerNotShown();
+
+	// Declaring size
+	int size = 25;
+	// Get the size of the Users present
+	int getSize = userAdminPO.accoutsUserList.size();
+	// if size is not equal to zero and less than 25
+	if (getSize != 0 && getSize <= size) {
+	    flag1 = true;
+	}
+	// if size and get size matches
+	while (size == getSize) {
+	    // Scroll the list
+	    ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+		    userAdminPO.accoutsUserList.get(getSize - 1));
+	    // Wait
+	    userAdminPO.checkProgressSpinnerNotShown();
+	    // Increment size by 25
+	    size += 25;
+	    getSize = userAdminPO.accoutsUserList.size();
+	    // Make flag true
+	    flag2 = true;
+	}
+	// Total size equals the size obtained through Rest API
+	if (getSize == restClient.fetchAccountusers()) {
+	    flag3 = true;
+	}
+	System.out.println(flag1);
+	System.out.println(flag2);
+	System.out.println(flag3);
+	// Verify whether Test Case Passed or Failed
+	if (flag1 && flag2 && flag3) {
+	    assertTrue(true);
+	    System.out.println("Support pagination when listing admin users. Passed");
+	} else {
+	    System.out.println("Support pagination when listing admin users. Failed");
+	    assertTrue(false);
+	}
+    }
+
+    // C3992 - Verify that the channels displayed for the accountholder role when creating a user from the Company displays
+    // the channels belonging to the user's of the same Company
+    @Test
+    public void ChannelsForSameCompanyUsers_Acntholder() throws Exception {
+	boolean flag1 = false;
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// test data fetching from testrail
+	String className = this.getClass().toString();
+	String classname1 = className.replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(classname1 + "." + methodName);
+	//
+	RestClient restClient = new RestClient();
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	String enteredUserLastName = null;
+	TestUtils elements = new TestUtils(driver);
+	List<String> ChannelList1 = new ArrayList<String>();
+	List<String> ChannelList2 = new ArrayList<String>();
+	// create new user1
+
+	// Go to User Admin page
+	for (int j = 0; j < 2; j++) {
+	    headerPO.clickMenu("ACCOUNTS");
+	    userAdminPO.checkProgressSpinnerNotShown();
+	    // Click on the "Add New User" button shown in the center pane
+	    userAdminPO.clickAddNewUser();
+	    // Enter values in the text fields
+	    userAdminPO.enterUserData(0, Helper.getProperty("FirstName")); // First Name
+	    
+	    // Create unique last name and email address values
+	    String lastName = Helper.getProperty("LastName") + dateFormat.format(date);
+	    String emailAddress = Helper.getProperty("Email") + dateFormat.format(date) + j + "@vimond.com";
+
+	    // get first name
+	    String enteredUserFirstName = userAdminPO.getUserData(0);
+	    userAdminPO.enterUserData(1, lastName); // Last Name
+	    enteredUserLastName = userAdminPO.getUserData(1);
+	    userAdminPO.enterUserData(2, emailAddress); // Email
+	    userAdminPO.enterUserData(3, "Demo111!"); // Password
+
+	    String User = enteredUserFirstName.concat(" ").concat(enteredUserLastName);
+	    // Select a role
+	    userAdminPO.clickRoleField();
+	    userAdminPO.selectRole(Helper.getProperty("Role"));
+	    // Click on Save button
+	    
+	    JavascriptExecutor js = ((JavascriptExecutor) driver);
+		js.executeScript("arguments[0].scrollIntoView(true);", userAdminPO.ChannelListItem.get(0));
+		elements.waitForElementsFluently(userAdminPO.ChannelList, 50);
+		elements.waitForElementFluently(userAdminPO.ChannelListItem.get(0), 50);
+		
+		if(j==0)
+		{
+		for (int i = 0; i < userAdminPO.ChannelListItem.size(); i++) {
+		    ChannelList1.add(userAdminPO.ChannelListItem.get(i).getText());
+		}
+		}
+		else if(j==1)
+		{
+		for (int i = 0; i < userAdminPO.ChannelListItem.size(); i++) {
+		    ChannelList2.add(userAdminPO.ChannelListItem.get(i).getText());
+		}
+	    userAdminPO.clickNewUserSaveButton();
+	    // Wait for the Lightbox to disappear
+	    elements.waitForElementToBeInvisible(By.cssSelector("core-modal-overlay"), 10);
+	    testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	    // CLick on Save button in the footer
+	    // userAdminPO.closeBTN_createUserWindow.click();//
+	    userAdminPO.clickSaveButton();
+	}
+	}
+	if (ChannelList1.containsAll(ChannelList2)) {
+	    assertTrue(true);
+	    System.out.println("list2:" + ChannelList2);
+	    System.out.println("list1:" + ChannelList1);
+	    System.out.println("passed for channel list of user's under same company");
+	} else {
+	    System.out.println("failed for channel list of user's under same company");
+	    assertTrue(false);
+	}
+	
+
+    }
+
+    //
+
+    // C3778 - Default view - Only company users should be listed
+    @Test
+    public void defaultViewAccounts() throws Exception {
+	boolean flag1 = false;
+	ImageBankPageObj ImageBankPageObject = PageFactory.initElements(driver, ImageBankPageObj.class);
+	SignUpPageObj SignUpPageObject = PageFactory.initElements(driver, SignUpPageObj.class);
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// test data fetching from testrail
+	String className = this.getClass().toString();
+	String classname1 = className.replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(classname1 + "." + methodName);
+	//
+	RestClient restClient = new RestClient();
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	// Unique Email Address
+	String emailAddress = dataMap.get("Email") + dateFormat.format(date) + "@vipomond.com";
+	// Unique 2nd Email
+	String emailAddress2 = dataMap.get("Email") + dateFormat.format(date) + "@miiles.com";
+	// Unique Firstname
+	String firstname = dataMap.get("FirstName") + dateFormat.format(date);
+	// Logout of the application
+	PageObjectUtils.logout(driver);
+	// Click Sign Up button
+	SignUpPageObject.clickEmailSignUpBTN();
+	// Fill the Details
+	SignUpPageObject.enterFirstName(firstname);
+	SignUpPageObject.enterLastName(dataMap.get("LastName"));
+	SignUpPageObject.enterEmailId(emailAddress);
+	SignUpPageObject.enterPassword(dataMap.get("Psswd"));
+	SignUpPageObject.enterConfirmPassword(dataMap.get("Psswd"));
+	SignUpPageObject.clickMainSignUpButton();
+	// API call to change the status to validated
+	restClient.adminConfirmation(emailAddress, "VALIDATED", "");
+	// Login
+	driver.get(dataMap.get("VCC_URL"));
+	WebDriverWait wait = new WebDriverWait(driver, 5);
+
+	// Login flow
+	WebElement username = driver.findElement(By.name("username"));
+	WebElement password = driver.findElement(By.id("password"));
+	testUT.waitForElementFluently(username, 10);
+	username.sendKeys(emailAddress);
+	testUT.waitForElementFluently(password, 10);
+	password.sendKeys(dataMap.get("Psswd"));
+	WebElement signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+	// Fill the Sign Up details
+	SignUpPageObject.enterTitle(dataMap.get("TitleReg"));
+	SignUpPageObject.clickNextBTN();
+	Thread.sleep(600);
+	SignUpPageObject.Country.click();
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select dark']"), 10);
+	SignUpPageObject.selectCountry(104);
+	// Thread.sleep(600);
+	SignUpPageObject.enterCity(dataMap.get("City"));
+	SignUpPageObject.enterPostalCode(dataMap.get("PostalCode"));
+	SignUpPageObject.enterAddress(dataMap.get("Address"));
+	SignUpPageObject.enterPhoneNo(dataMap.get("PhoneNo"));
+	SignUpPageObject.clickMainSignUpButton();
+	SignUpPageObject.enterPublisherName("Vim India");
+	SignUpPageObject.enterBuisinessId("78356");
+	SignUpPageObject.enterPublisherEmail("vimond@vimond.in");
+	driver.findElement(By.xpath("//button[@class='cms-button button upload primary']")).click();
+	// Change the status to Approved through API call
+	restClient.adminConfirmation(emailAddress, "APPROVED", "");
+	// Login
+	driver.get(dataMap.get("VCC_URL"));
+	wait = new WebDriverWait(driver, 5);
+
+	// Login flow
+	username = driver.findElement(By.name("username"));
+	password = driver.findElement(By.id("password"));
+	testUT.waitForElementFluently(username, 10);
+	username.sendKeys(emailAddress);
+	testUT.waitForElementFluently(password, 10);
+	password.sendKeys(dataMap.get("Psswd"));
+	signInButton = driver.findElement(By.cssSelector(".cms-button.button.upload.primary"));
+	signInButton.click();
+	// click on the More button and Select Accounts
+	headerPO.clickMenu(dataMap.get("MenuAccounts"));
+	// Click on the "Add New User" button shown in the center pane
+	userAdminPO.clickAddNewUser();
+	// Set Firstname
+	userAdminPO.setFirstName(firstname);
+	// Set LastName
+	userAdminPO.setLastName(dataMap.get("LastName"));
+	// Set Email
+	userAdminPO.setEmail(emailAddress2);
+	// Set password
+	userAdminPO.setPassword(dataMap.get("Psswd"));
+	userAdminPO.clickRoleField();
+	userAdminPO.selectRole(dataMap.get("Role"));
+	// Wait for the Role class to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-select focus']"), 20);
+	// Click on Save button in Lightbox
+	userAdminPO.clickNewUserSaveButton();
+	// Wait for the Lightbox to disappear
+	testUT.waitForElementToBeInvisible(By.xpath("//div[@class='core-modal lightbox simple']"), 50);
+	// CLick on Save button in the footer
+	userAdminPO.clickSaveButton();
+	// Refresh the page
+	driver.navigate().refresh();
+	// Wait
+	userAdminPO.checkProgressSpinnerNotShown();
+	// To check if count is 2
+	if (userAdminPO.accountUserGetSize() == 2) {
+	    flag1 = true;
+	}
+	// Verify whether Test Case Passed or Failed
+	if (flag1) {
+	    assertTrue(true);
+	    System.out.println("Default view - Only company users should be listed. Passed");
+	} else {
+	    System.out.println("Default view - Only company users should be listed. Failed");
+	    assertTrue(false);
+	}
+
+    }
+    
+    
+    
+ // C3769 - The edited company name should be reflected on assets, catalog and editorial page
+ //   1. Asset page - On selecting the "Publisher" metadata option from the optional metadata dropdpown, the name of the company should be autofilled in the Publisher field 
+    
+    @Test
+    public void AssetsForEditCompanyName() throws Exception {
+	boolean flag1 = false;
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	ContentModule contentMod = PageFactory.initElements(driver, ContentModule.class);
+	ContentPageObject ContentPO = PageFactory.initElements(driver, ContentPageObject.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// test data fetching from testrail
+	String className = this.getClass().toString();
+	String classname1 = className.replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(classname1 + "." + methodName);
+	//
+	RestClient restClient = new RestClient();
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	String enteredUserLastName = null;
+	TestUtils elements = new TestUtils(driver);
+	
+	// create new user1
+
+	// Go to User Admin page
+	
+	    headerPO.clickMenu("ACCOUNTS");
+	    userAdminPO.checkProgressSpinnerNotShown();
+	    // Click on the "Add New User" button shown in the center pane
+	    userAdminPO.clickAddNewUser();
+	    // Enter values in the text fields
+	    userAdminPO.enterUserData(0, Helper.getProperty("FirstName")); // First Name
+	    
+	    // Create unique last name and email address values
+	    String lastName = Helper.getProperty("LastName") + dateFormat.format(date);
+	    String emailAddress = Helper.getProperty("Email") + dateFormat.format(date) + "@vimond.com";
+
+	    // get first name
+	    String enteredUserFirstName = userAdminPO.getUserData(0);
+	    userAdminPO.enterUserData(1, lastName); // Last Name
+	    enteredUserLastName = userAdminPO.getUserData(1);
+	    userAdminPO.enterUserData(2, emailAddress); // Email
+	    userAdminPO.enterUserData(3, "Demo111!"); // Password
+
+	    String User = enteredUserFirstName.concat(" ").concat(enteredUserLastName);
+	    // Select a role
+	    userAdminPO.clickRoleField();
+	    userAdminPO.selectRole(Helper.getProperty("Role"));
+	    // Click on Save button
+	    userAdminPO.clickNewUserSaveButton();
+	    elements.waitForElementToBeInvisible(By.cssSelector("div.core-modal-overlay"), 20);
+	    userAdminPO.clickSaveButton();
+	    
+	   /* userAdminPO.enterSearchUser(User);
+	    userAdminPO.selectSearchResult(0);*/
+	    
+	    //login as new user
+	    userAdminPO.clickBecomeThisUserButton();
+	    elements.waitForElementFluently(ContentPO.UserName, 20);
+
+	    headerPO.clickMenu("ACCOUNTS");
+	    userAdminPO.checkProgressSpinnerNotShown();
+	    userAdminPO.enterSearchUser(User);
+	    userAdminPO.selectSearchResult(0);
+	    userAdminPO.clickEditUser();
+	    userAdminPO.companyEditName.clear();
+	    userAdminPO.setCompanyEditName("Vimond_edit12"+date);
+	    String EditedCompanyName=userAdminPO.getCompanyEditName();
+	    
+	    userAdminPO.clickSaveButton();
+	    
+	    
+	    
+	    headerPO.clickMenu("ASSETS");
+	   // Create new asset
+	    
+		// get all data from test Rail
+		String setNewTitle = Helper.getProperty("setNewTitle");
+		String setNewDescription = Helper.getProperty("setNewDescription");
+		// int setChannel = Integer.parseInt(dataMap.get("setChannel"));
+
+		// ---------
+		// get mandatory metadata list for an asset via API call
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("required", "true");
+		map.put("appliesTo", "all");
+		map.put("appliesTo", "asset");
+		map.put("hidden", "false");
+		RestClient c = new RestClient();
+		List<String> mandatoryMetadataTitleList = c.fetchAssetMetadataDefinitions(map);
+		System.out.println("list :" + mandatoryMetadataTitleList);
+		ContentPageObject ContentPageObj = PageFactory.initElements(driver, ContentPageObject.class);
+
+		// clicking on create new asset from left pane
+		ContentPageObj.clickCreateAssetButton();
+
+		// checking new asset frame -- placeholder for new asset
+		String NewTitleInput = ContentPageObj.titleInput.getAttribute("placeholder");
+		System.out.println("new asset : " + NewTitleInput);
+
+		// Scroll description field into view
+		JavascriptExecutor js = ((JavascriptExecutor) driver);
+		js.executeScript("arguments[0].scrollIntoView(true);", ContentPageObj.descriptionInput);
+
+		String NewDescriptionInput = ContentPageObj.getDescription();
+		System.out.println("new asset Desc: " + NewDescriptionInput);
+
+		// Scroll channel element into view
+		js.executeScript("arguments[0].scrollIntoView(true);", ContentPageObj.Channele);
+
+		String AssetChannelDrpDwnValue_RightPane = ContentPageObj.Channele.getText();
+		System.out.println("new asset channel field: " + AssetChannelDrpDwnValue_RightPane);
+
+		// enter title and description values
+		ContentPageObj.setTitle(setNewTitle);
+		js.executeScript("arguments[0].scrollIntoView(true);", ContentPageObj.descriptionInput);
+		ContentPageObj.setDescription(setNewDescription);
+		js.executeScript("arguments[0].scrollIntoView(true);", ContentPageObj.Channele);
+		ContentPageObj.selectChannel(3);// (setChannel);
+		
+		WebElement e = driver.findElement(By.cssSelector("div.metadata-list"));
+		elements.waitForElementToBeInvisible(By.cssSelector("i.icon-2x.icon-spinner.icon-spin.animated::before"), 20);
+		elements.waitForElementFluently(e, 20);// wawaitForElementFluently(By.cssSelector("div.metadata-list"), 10);
+
+		// fill mandatory metadata values
+		for (int i = 0; i < mandatoryMetadataTitleList.size(); i++) {
+		   
+		    ContentPageObj.setAssetMetadataValue(mandatoryMetadataTitleList.get(i),
+			    "test" + mandatoryMetadataTitleList.get(i).toString());
+		}
+
+		// save the asset
+		ContentPageObj.clickAssetSaveButton();
+
+		js.executeScript("arguments[0].scrollIntoView(true);", ContentPageObj.titleInput);
+
+		// checking new asset frame -- placeholder for new asset
+		NewTitleInput = ContentPageObj.titleInput.getAttribute("value");
+		System.out.println(" asset : " + NewTitleInput);
+
+		js.executeScript("arguments[0].scrollIntoView(true);", ContentPageObj.descriptionInput);
+
+		NewDescriptionInput = ContentPageObj.getDescription();
+		System.out.println("new asset Desc: " + NewDescriptionInput);
+
+		js.executeScript("arguments[0].scrollIntoView(true);", ContentPageObj.Channele);
+
+		AssetChannelDrpDwnValue_RightPane = ContentPageObj.Channele.getText();
+		System.out.println("new asset channel field: " + AssetChannelDrpDwnValue_RightPane);
+
+		driver.navigate().refresh();
+		elements.waitForElementsFluently(ContentPageObj.assetsList, 30);
+	    
+		String AssetName=ContentPO.getAssetTitleFromSearchResult(ContentPO.assetsList.get(0));
+		System.out.println("asset  : "+AssetName);
+	
+		PageObjectUtils.logout(driver);
+		// Login with Rejected user
+		PageObjectUtils.login(driver, Helper.getProperty("UserAdmin"), Helper.getProperty("Password"));
+	  
+	ContentPO.enterAssetSearchInput(AssetName);
+	js.executeScript("arguments[0].scrollIntoView(true);", ContentPageObj.publisherIdField_publisherName_ID);
+
+	String ActualCompanyName=ContentPageObj.publisherIdField_publisherName_ID.getText();
+	/*String substr = " (";
+	String[] ActualCompanyName_Updated = ActualCompanyName.split(substr);*/
+	
+	System.out.println("string :"+ActualCompanyName);
+	
+	if(ActualCompanyName.contains(EditedCompanyName))
+	{
+	    assertTrue(true);
+	    System.out.println("passed");
+	}
+	else
+	{
+	    System.out.println("passed");
+	    assertTrue(false);
+	}
+    }
+    
+    
+    
+ // C3769 - The edited company name should be reflected on assets, catalog and editorial page
+    //   2. Catalog page- When a channel is selected, the name of the company should be displayed under the channel name
+    
+    
+    @Test
+    public void CatalogForEditCompanyName() throws Exception {
+	boolean flag1 = false;
+
+	UserAdminPageObj userAdminPO = PageFactory.initElements(driver, UserAdminPageObj.class);
+	ContentModule contentMod = PageFactory.initElements(driver, ContentModule.class);
+	ContentPageObject ContentPO = PageFactory.initElements(driver, ContentPageObject.class);
+	HeaderPageObj headerPO = PageFactory.initElements(driver, HeaderPageObj.class);
+	TestUtils testUT = PageFactory.initElements(driver, TestUtils.class);
+	// test data fetching from testrail
+	String className = this.getClass().toString();
+	String classname1 = className.replace("class com.vimond.automation.tests.", "");
+	String methodName = new Object() {
+	}.getClass().getEnclosingMethod().getName();
+
+	Map<String, String> dataMap = Helper.initializeTestData(classname1 + "." + methodName);
+	//
+	RestClient restClient = new RestClient();
+	// Calendar for getting seconds
+	DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
+	Date date = new Date();
+	String enteredUserLastName = null;
+	TestUtils elements = new TestUtils(driver);
+	
+	// create new user1
+
+	// Go to User Admin page
+	CatalogPageObj CatalogPageObjTest = PageFactory.initElements(driver, CatalogPageObj.class);
+	    headerPO.clickMenu("ACCOUNTS");
+	    userAdminPO.checkProgressSpinnerNotShown();
+	    // Click on the "Add New User" button shown in the center pane
+	    userAdminPO.clickAddNewUser();
+	    // Enter values in the text fields
+	    userAdminPO.enterUserData(0, Helper.getProperty("FirstName")); // First Name
+	    
+	    // Create unique last name and email address values
+	    String lastName = Helper.getProperty("LastName") + dateFormat.format(date);
+	    String emailAddress = Helper.getProperty("Email") + dateFormat.format(date) + "@vimond.com";
+
+	    // get first name
+	    String enteredUserFirstName = userAdminPO.getUserData(0);
+	    userAdminPO.enterUserData(1, lastName); // Last Name
+	    enteredUserLastName = userAdminPO.getUserData(1);
+	    userAdminPO.enterUserData(2, emailAddress); // Email
+	    userAdminPO.enterUserData(3, "Demo111!"); // Password
+
+	    String User = enteredUserFirstName.concat(" ").concat(enteredUserLastName);
+	    // Select a role
+	    userAdminPO.clickRoleField();
+	    userAdminPO.selectRole(Helper.getProperty("Role"));
+	    // Click on Save button
+	    userAdminPO.clickNewUserSaveButton();
+	    elements.waitForElementToBeInvisible(By.cssSelector("div.core-modal-overlay"), 50);
+	    userAdminPO.clickSaveButton();
+	    
+	   /* userAdminPO.enterSearchUser(User);
+	    userAdminPO.selectSearchResult(0);*/
+	    
+	    //login as new user
+	    userAdminPO.clickBecomeThisUserButton();
+	    elements.waitForElementFluently(ContentPO.UserName, 20);
+
+	    elements.waitForElementFluently(ContentPO.UserName, 20);
+
+	    headerPO.clickMenu("ACCOUNTS");
+	    userAdminPO.checkProgressSpinnerNotShown();
+	    userAdminPO.enterSearchUser(User);
+	    userAdminPO.selectSearchResult(0);
+	    userAdminPO.clickEditUser();
+	    elements.waitForElementFluently( userAdminPO.companyEditName, 30);
+	    userAdminPO.companyEditName.clear();
+	    userAdminPO.setCompanyEditName("Vimond_CompanyName"+enteredUserFirstName);
+	    String EditedCompanyName=userAdminPO.getCompanyEditName();
+	    
+	    userAdminPO.clickSaveButton();
+	    
+	    
+	   /* headerPO.clickMenu("CATALOG");
+	    userAdminPO.checkProgressSpinnerNotShown();*/
+	    
+	   // CatalogPageObjTest.createCategory();
+	    String Channel=CatalogPageObjTest.NewCreateChannel(driver,emailAddress);
+	    
+	    String ChannelID=CatalogPageObjTest.getchannelID();
+
+	    PageObjectUtils.logout(driver);
+		// Login with Rejected user
+		PageObjectUtils.login(driver, Helper.getProperty("UserAdmin"), Helper.getProperty("Password"));
+	    
+	    
+	    headerPO.clickMenu("CATALOG");
+	    Thread.sleep(3000);
+	    CatalogPageObjTest.SendSearchInput(ChannelID);
+	    CatalogPageObjTest.Search.clear();
+	    CatalogPageObjTest.SendSearchInput(ChannelID);
+	    CatalogPageObjTest.AssetSearchClick.click();
+	    //selectSearchChannels(ChannelID);
+    
+	    if(CatalogPageObjTest.companyName.getText().contains(EditedCompanyName))
+	    {
+		assertTrue(true);
+		System.out.println("passed for company name at catalog channel");
+	    }
+	    else
+	    {
+		
+		System.out.println("failed for company name at catalog channel");
+		assertTrue(false);
+	    }
+    
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    @After
+    public void closeBrowser() {
+	System.out.println("Closing Chrome browser");
+	// driver.quit();
+    }
+
+    public static WebElement fluentWait(final By locator) {
+
+	Wait<WebDriver> fluentWait = new FluentWait<WebDriver>(driver).withTimeout(30, SECONDS).pollingEvery(5, SECONDS)
+		.ignoring(NoSuchElementException.class);
+
+	WebElement elementFound = fluentWait.until(new Function<WebDriver, WebElement>() {
+	    @Override
+	    public WebElement apply(WebDriver webDriver) {
+		return driver.findElement(locator);
+	    }
+	});
+
+	return elementFound;
+    }
+}
