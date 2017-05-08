@@ -6,6 +6,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.Select;
 
 import com.test.automation.uiAutomation.homepage.TC_001VerifyLoginWithInvalidCredentials;
 import com.test.automation.uiAutomation.homepage.explicitWait;
@@ -46,13 +47,57 @@ public class Homepage {
 	@FindBy(xpath = "//div[@class='messages messages--error']/h2")
 	WebElement errorMessage;
 
-	// Login in Application
-	public void loginApplication(String emailAddress, String Password) {
+	// Register button
+	@FindBy(xpath = "//div[@class='anonymous-register anonymous-text']")
+	WebElement registerButton;
+
+	// Register form
+	@FindBy(id = "formm-bg")
+	WebElement registrationForm;
+
+	// Username block
+	@FindBy(xpath = "//div[@class='user-name']/span")
+	WebElement username;
+
+	// First Name
+	@FindBy(id = "txtfirstname")
+	WebElement firstName;
+
+	// Last name
+	@FindBy(id = "txtlastname")
+	WebElement lastName;
+
+	// Email Address
+	@FindBy(id = "txtemail")
+	WebElement emailAddressRegister;
+
+	// Password
+	@FindBy(id = "txtpwd")
+	WebElement passwordRegister;
+
+	// Confirm Password
+	@FindBy(id = "txtcnfpwd")
+	WebElement confirmPassword;
+
+	// Univeristy Name
+	@FindBy(id = "txtorg")
+	WebElement universityName;
+	
+	//Job Title Select Id
+	@FindBy(id = "drpjdesc")
+	WebElement jobTitleId;
+	
+	//Captcha Text
+	@FindBy(xpath = "//span[@class='captchaText']")
+	WebElement captchaText;
+
+	// Login in Application Invalid Credentials
+	public void loginApplicationInvalid(String emailAddress, String Password) {
 		logIn.click();
 		log.info("Clicked on sign in and object is:" + logIn.toString());
 		JavascriptExecutor jse = (JavascriptExecutor) driver;
-		jse.executeScript("arguments[0].value='authenticated-user-test@mailinator.com';", EmailId);
-		jse.executeScript("arguments[0].value='asd';", password);
+		jse.executeScript("arguments[0].value='" + emailAddress + "';", EmailId);
+		jse.executeScript("arguments[0].value='" + Password + "';", password);
 		loginButton.click();
 		log.info("CLick on login button and the object is:" + loginButton.toString());
 		// Wait
@@ -60,9 +105,57 @@ public class Homepage {
 		wait.waitForLoad(driver);
 	}
 
+	// Login in Application Valid Credentials
+	public void loginApplicationvalid(String emailAddress, String Password) {
+		logIn.click();
+		log.info("Clicked on sign in and object is:" + logIn.toString());
+		JavascriptExecutor jse = (JavascriptExecutor) driver;
+		jse.executeScript("arguments[0].value='" + emailAddress + "';", EmailId);
+		jse.executeScript("arguments[0].value='" + Password + "';", password);
+		loginButton.click();
+		log.info("CLick on login button and the object is:" + loginButton.toString());
+		// Wait
+		wait.waitForElementToBeInvisible(By.xpath("//div[@class='overlay-close']"), 30);
+		wait.waitForLoad(driver);
+	}
+
+	// New User Registration
+	public void registerUser(String firstname, String lastname, String email, String Password) {
+		registerButton.click();
+		log.info("Clicked on sign in and object is:" + registerButton.toString());
+		wait.waitForLoad(driver);
+		driver.switchTo().frame("insights-widget");
+		wait.waitForElementFluently(registrationForm, 30);
+		firstName.sendKeys(firstname);
+		lastName.sendKeys(lastname);
+		emailAddressRegister.sendKeys(email);
+		passwordRegister.sendKeys(Password);
+		confirmPassword.sendKeys(Password);
+		Select jobTitle = new Select(jobTitleId);
+		jobTitle.selectByIndex(4);
+		universityName.sendKeys("test");
+	}
+	
+	//Select captcha
+	public void selectAnOption(String option) {
+        List<WebElement> choice = driver.findElements(By.xpath("//div[@class='atcui-scrollPanel-wrapper']/ul/li"));
+        for(WebElement e : choice){
+            System.out.println(e.getText());
+            if(e.getText().contains(option)){
+                e.click();
+                break;
+            }
+        }
+    }
+
 	// Error message
 	public String errorMessage() {
 		return errorMessage.getText();
+	}
+
+	// Username Text
+	public String authenticatedUsername() {
+		return username.getText();
 	}
 
 }

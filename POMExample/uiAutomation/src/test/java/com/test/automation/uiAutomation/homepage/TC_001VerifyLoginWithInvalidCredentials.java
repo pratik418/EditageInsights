@@ -24,7 +24,7 @@ public class TC_001VerifyLoginWithInvalidCredentials extends TestBase {
 		log.info("**************Starting the Test invalidLoginCredentials********************");
 		Homepage homePage = PageFactory.initElements(driver, Homepage.class);
 		// Login
-		homePage.loginApplication("authenticated-user-test@mailinator.com", "abc");
+		homePage.loginApplicationInvalid("authenticated-user-test@mailinator.com", "abc");
 		// Error message text
 		String errorMessage = homePage.errorMessage();
 		// Verify condition
