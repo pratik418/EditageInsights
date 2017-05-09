@@ -30,9 +30,9 @@ public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 		// Error message text
 		String username = homePage.authenticatedUsername();
 		// Verify condition
-		if(username.contains("Authenticated")){
+		if (username.contains("Authenticated")) {
 			assertTrue(true, "User successfully logged in");
-		}else{
+		} else {
 			assertTrue(false, "User login unsuccessful");
 		}
 		log.info("**************Finishing the Test validLoginCredentials********************");

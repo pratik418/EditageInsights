@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import com.test.automation.uiAutomation.testBase.TestBase;
 import com.test.automation.uiAutomation.uiActions.Homepage;
 
-public class TC_003RegisterUser  extends TestBase {
+public class TC_003RegisterUser extends TestBase {
 
 	public static final Logger log = Logger.getLogger(TC_002VerifyLoginWithValidCredentials.class.getName());
 
@@ -21,20 +21,20 @@ public class TC_003RegisterUser  extends TestBase {
 	}
 
 	@Test
-	public void validLoginCredentials() throws InterruptedException {
-		log.info("**************Starting the Test validLoginCredentials********************");
+	public void registerUsername() throws InterruptedException {
+		log.info("**************Starting the Test registerUsername********************");
 		Homepage homePage = PageFactory.initElements(driver, Homepage.class);
 		// Login
-		homePage.loginApplicationvalid("authenticated-user-test@mailinator.com", "authenticatedusertest");
+		homePage.registerUser("Prst", "Psst", "pasd@mailinator.com", "abcd");
 		// Error message text
 		String username = homePage.authenticatedUsername();
 		// Verify condition
-		if(username.contains("Authenticated")){
-			assertTrue(true, "User successfully logged in");
-		}else{
-			assertTrue(false, "User login unsuccessful");
+		if (username.contains("Dr")) {
+			assertTrue(true, "User successfully registered");
+		} else {
+			assertTrue(false, "User registration was unsuccessful");
 		}
-		log.info("**************Finishing the Test validLoginCredentials********************");
+		log.info("**************Finishing the Test registerUsername********************");
 	}
 
 	@AfterClass
