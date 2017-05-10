@@ -8,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.PageFactory;
 
+import com.test.automation.uiAutomation.excelReader.Excel_Reader;
 import com.test.automation.uiAutomation.homepage.explicitWait;
 
 public class TestBase {
@@ -17,6 +18,7 @@ public class TestBase {
 	public WebDriver driver;
 	String url = "http://ei.editage.com/insights/";
 	String browser = "chrome";
+	Excel_Reader excel;
 
 	// To fetch the URL and browser
 	public void init() {
@@ -46,5 +48,12 @@ public class TestBase {
 		// Maximize
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+	}
+	
+	public String[][] getData(String excelName, String sheetName){		
+		String path = System.getProperty("user.dir") +"\\src\\main\\java\\com\\test\\automation\\uiAutomation\\data\\" +excelName;
+		excel = new Excel_Reader(path);
+		String[][] data = excel.getDataFromSheet(sheetName, excelName);
+		return data;
 	}
 }
