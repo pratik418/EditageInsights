@@ -15,9 +15,9 @@ import com.test.automation.uiAutomation.uiActions.Homepage;
 public class TC_001VerifyLoginWithInvalidCredentials extends TestBase {
 
 	public static final Logger log = Logger.getLogger(TC_001VerifyLoginWithInvalidCredentials.class.getName());
-	
-	@DataProvider(name="loginDataEmail")
-	public String[][] getTestData(){
+
+	@DataProvider(name = "loginDataEmail")
+	public String[][] getTestData() {
 		String[][] testRecords = getData("LoginTestData.xlsx", "LoginData");
 		return testRecords;
 	}
@@ -27,9 +27,10 @@ public class TC_001VerifyLoginWithInvalidCredentials extends TestBase {
 		init();
 	}
 
-	@Test(dataProvider="loginDataEmail")
-	public void invalidLoginCredentials(String emailAddress, String password, String runMode) throws InterruptedException {
-		if(runMode.equalsIgnoreCase("n")){
+	@Test(dataProvider = "loginDataEmail")
+	public void invalidLoginCredentials(String emailAddress, String password, String runMode)
+			throws InterruptedException {
+		if (runMode.equalsIgnoreCase("n")) {
 			throw new SkipException("user marked this record as no run");
 		}
 		log.info("**************Starting the Test invalidLoginCredentials********************");

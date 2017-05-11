@@ -3,6 +3,9 @@
 
 
 <suite name="Regression Suite">
+<listeners>
+<listener class-name="com.test.automation.uiAutomation.listener.Listener"></listener>
+</listeners>
 <test name="TC_002VerifyLoginWithValidCredentials">
 <classes>
 <class name="com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials"></class>

@@ -17,19 +17,22 @@ import org.testng.Reporter;
 
 import com.test.automation.uiAutomation.excelReader.Excel_Reader;
 import com.test.automation.uiAutomation.homepage.explicitWait;
+import com.test.automation.uiAutomation.listener.Listener;
 
 public class TestBase {
 
 	public static final Logger log = Logger.getLogger(TestBase.class.getName());
 
-	public WebDriver driver;
+	public static WebDriver driver;
 	String url = "http://ei.editage.com/insights/";
 	String browser = "chrome";
 	Excel_Reader excel;
+	Listener lis;
 
 	// To fetch the URL and browser
 	public void init() {
 		selectBrowser(browser);
+		//lis = new Listener(driver);
 		getUrl(url);
 		String log4jConfpath = "log4j.properties";
 		PropertyConfigurator.configure(log4jConfpath);
@@ -56,32 +59,35 @@ public class TestBase {
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
 	}
-	
-	public String[][] getData(String excelName, String sheetName){		
-		String path = System.getProperty("user.dir") +"\\src\\main\\java\\com\\test\\automation\\uiAutomation\\data\\" +excelName;
+
+	public String[][] getData(String excelName, String sheetName) {
+		String path = System.getProperty("user.dir") + "\\src\\main\\java\\com\\test\\automation\\uiAutomation\\data\\"
+				+ excelName;
 		excel = new Excel_Reader(path);
 		String[][] data = excel.getDataFromSheet(sheetName, excelName);
 		return data;
 	}
-	
-	//Capture Screenshot
-	public void getScreenShot(String name){
-		
+
+	// Capture Screenshot
+	public void getScreenShot(String name) {
+
 		Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd_MM_yyyy_hh_mm_ss");
-		
+
 		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-		
-		try{
-			String reportDirectory = new File(System.getProperty("user.dir")).getAbsolutePath() + "\\src\\main\\java\\com\\test\\automation\\uiAutomation\\screenshot\\";
-			File destFile = new File((String) reportDirectory + name + "_" + formatter.format(calendar.getTime()) + ".png");
+
+		try {
+			String reportDirectory = new File(System.getProperty("user.dir")).getAbsolutePath()
+					+ "\\src\\main\\java\\com\\test\\automation\\uiAutomation\\screenshot\\";
+			File destFile = new File(
+					(String) reportDirectory + name + "_" + formatter.format(calendar.getTime()) + ".png");
 			FileUtils.copyFile(scrFile, destFile);
-			//To link the screenshot to TestNG report
-			Reporter.log("<a href='" + destFile.getAbsolutePath() +"'> <img src='" + destFile.getAbsolutePath() + "'height='100' width='100'/> </a>");
-		}catch(Exception e){
+			// To link the screenshot to TestNG report
+			Reporter.log("<a href='" + destFile.getAbsolutePath() + "'> <img src='" + destFile.getAbsolutePath()
+					+ "'height='100' width='100'/> </a>");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
+
 	}
 }
