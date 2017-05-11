@@ -46,7 +46,7 @@ public class Excel_Reader {
 			for (int i = 1; i < totalRow; i++) {
 				XSSFRow rows = sheet.getRow(i);
 				// this loop will run for columns
-				for (int j = 1; j < totalColumn; j++) {
+				for (int j = 0; j < totalColumn; j++) {
 					// get Cell method will get cell
 					XSSFCell cell = rows.getCell(j);
 					// if cell of type string, then this condition will work

@@ -28,6 +28,7 @@ public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 		homePage.loginApplicationvalid("authenticated-user-test@mailinator.com", "authenticatedusertest");
 		// Error message text
 		String username = homePage.authenticatedUsername();
+		getScreenShot("Username" +username);
 		// Verify condition
 		if (username.contains("Authenticated")) {
 			assertTrue(true, "User successfully logged in");
