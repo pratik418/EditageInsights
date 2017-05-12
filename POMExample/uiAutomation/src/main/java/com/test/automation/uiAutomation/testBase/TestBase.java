@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -18,7 +19,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.PageFactory;
+import org.testng.ITestResult;
 import org.testng.Reporter;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
@@ -46,6 +51,7 @@ public class TestBase {
 	// To fetch the URL and browser
 	public void init() throws IOException {
 		loadData();
+		extent = new ExtentReports(System.getProperty("user.dir") +"\\src\\main\\java\\com\\test\\automation\\uiAutomation\\report\\TestHtmlReport.html", false);
 		selectBrowser(OR.getProperty("browser"));
 		// lis = new Listener(driver);
 		getUrl(OR.getProperty("url"));
@@ -181,5 +187,44 @@ public class TestBase {
 		bw1.close();
 
 	}
+	
+	
+	public void getresult(ITestResult result){
+		if(result.getStatus()==ITestResult.SUCCESS){
+			
+		}
+		else if(result.getStatus()==ITestResult.SKIP){
+			
+		}
+		else if(result.getStatus()==ITestResult.FAILURE){			
+			String screen = captureScreen("");
+			
+		}
+		else if(result.getStatus()==ITestResult.STARTED){
+		}
+	}
+	
+	@AfterMethod()
+	public void afterMethod(ITestResult result){
+		getresult(result);
+	}
+	
+	@BeforeMethod()
+	public void beforeMethod(Method result){
+		test = extent.startTest(result.getName());
+	}
+	
+
+	@AfterClass(alwaysRun=true)
+	public void endTest() {
+		closeBrowser();
+	}
+	
+	public void closeBrowser(){
+		driver.quit();
+		extent.endTest(test);
+		extent.flush();
+	}
+
 
 }

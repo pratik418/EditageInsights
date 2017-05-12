@@ -31,17 +31,15 @@ public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 		// Verify condition
 		if (username.contains("Authenticated")) {
 			assertTrue(true, "User successfully logged in");
-			updateResult(i, "Login With Valid Data", "Pass", "Registration Test");
+			//updateResult(i, "Login With Valid Data", "Pass", "Registration Test");
 		} else {
 			assertTrue(false, "User login unsuccessful");
-			updateResult(i, "Login With Valid Data", "Fail", "Login Test");
+			//updateResult(i, "Login With Valid Data", "Fail", "Login Test");
 		}
 	}
 
-	@AfterClass()
-	public void endTest() {
-		extent.endTest(test);
-		extent.flush();
-		driver.quit();
-	}
+	//@AfterClass()
+	//public void endTest() {
+	//	driver.quit();
+	//}
 }
