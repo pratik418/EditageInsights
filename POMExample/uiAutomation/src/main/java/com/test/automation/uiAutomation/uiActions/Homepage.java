@@ -2,7 +2,6 @@ package com.test.automation.uiAutomation.uiActions;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -14,7 +13,7 @@ import com.test.automation.uiAutomation.homepage.explicitWait;
 
 public class Homepage {
 
-	public static final Logger log = Logger.getLogger(Homepage.class.getName());
+	
 
 	private WebDriver driver;
 	explicitWait wait;
@@ -99,12 +98,10 @@ public class Homepage {
 	// Login in Application Invalid Credentials
 	public void loginApplicationInvalid(String emailAddress, String Password) {
 		logIn.click();
-		log.info("Clicked on sign in and object is:" + logIn.toString());
 		JavascriptExecutor jse = (JavascriptExecutor) driver;
 		jse.executeScript("arguments[0].value='" + emailAddress + "';", EmailId);
 		jse.executeScript("arguments[0].value='" + Password + "';", password);
 		loginButton.click();
-		log.info("CLick on login button and the object is:" + loginButton.toString());
 		// Wait
 		wait.waitForElementToBeInvisible(By.xpath("//div[@class='overlay-close']"), 30);
 		wait.waitForLoad(driver);
@@ -113,12 +110,10 @@ public class Homepage {
 	// Login in Application Valid Credentials
 	public void loginApplicationvalid(String emailAddress, String Password) {
 		logIn.click();
-		log.info("Clicked on sign in and object is:" + logIn.toString());
 		JavascriptExecutor jse = (JavascriptExecutor) driver;
 		jse.executeScript("arguments[0].value='" + emailAddress + "';", EmailId);
 		jse.executeScript("arguments[0].value='" + Password + "';", password);
 		loginButton.click();
-		log.info("CLick on login button and the object is:" + loginButton.toString());
 		// Wait
 		wait.waitForElementToBeInvisible(By.xpath("//div[@class='overlay-close']"), 30);
 		wait.waitForLoad(driver);
@@ -127,27 +122,19 @@ public class Homepage {
 	// New User Registration
 	public void registerUser(String firstname, String lastname, String email, String Password) {
 		registerButton.click();
-		log.info("Clicked on sign in and object is:" + registerButton.toString());
 		wait.waitForLoad(driver);
 		driver.switchTo().frame("insights-widget");
 		wait.waitForElementFluently(registrationForm, 30);
 		firstName.sendKeys(firstname);
-		log.info("First Name object is:" + firstName.toString());
 		lastName.sendKeys(lastname);
-		log.info("Last Name object is:" + lastName.toString());
 		emailAddressRegister.sendKeys(email);
-		log.info("Email Address Name object is:" + emailAddressRegister.toString());
 		passwordRegister.sendKeys(Password);
-		log.info("Password object is:" + passwordRegister.toString());
 		confirmPassword.sendKeys(Password);
-		log.info("Confirm password object is:" + confirmPassword.toString());
 		Select jobTitle = new Select(jobTitleId);
 		jobTitle.selectByIndex(4);
 		universityName.sendKeys("test");
-		log.info("University name object is:" + universityName.toString());
 		selectAnOption();
 		registerFreeButton.click();
-		log.info("Clicked on register free button:" + registerFreeButton.toString());
 		wait.waitForElementToBeInvisible(By.id("modalOverlay"), 50);
 		driver.switchTo().defaultContent();
 
