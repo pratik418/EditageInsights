@@ -42,10 +42,10 @@ public class TC_001VerifyLoginWithInvalidCredentials extends TestBase {
 		Assert.assertEquals("Error message", errorMessage);
 	}
 
-	@AfterClass
-	public void endTest() {
+	//@AfterClass
+//	public void endTest() {
 		// Close the browser
-		driver.close();
-	}
+	//	driver.close();
+//	}
 
 }

@@ -10,8 +10,8 @@ public class Retry implements IRetryAnalyzer {
 	public boolean retry(ITestResult result) {
 		// TODO Auto-generated method stub
 		if (retryCount < maxretryCount) {
-			System.out.println("Retrying test" + result.getName() + "with status"
-					+ getResultStatusName(result.getStatus()) + "for the" + (retryCount + 1) + "time(s).");
+			System.out.println("Retrying test" + result.getName() + " with status "
+					+ getResultStatusName(result.getStatus()) + " for the " + (retryCount + 1) + " time(s).");
 			retryCount++;
 			return true;
 		}

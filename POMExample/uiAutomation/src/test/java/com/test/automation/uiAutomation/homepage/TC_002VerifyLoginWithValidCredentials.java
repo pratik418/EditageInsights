@@ -5,7 +5,6 @@ import static org.testng.Assert.assertTrue;
 import java.io.IOException;
 
 import org.openqa.selenium.support.PageFactory;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -14,7 +13,7 @@ import com.test.automation.uiAutomation.uiActions.Homepage;
 
 public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 
-	int i = 0;
+	//int i = 0;
 
 	@BeforeClass
 	public void setup() throws IOException {
@@ -25,7 +24,7 @@ public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 	public void validLoginCredentials() throws InterruptedException, IOException {
 		Homepage homePage = PageFactory.initElements(driver, Homepage.class);
 		// Login
-		homePage.loginApplicationvalid("authenticated-user-test@mailinator.com", "authenticatedusertest");
+		homePage.loginApplicationvalid("authenticatsed-user-test@mailinator.com", "authenticatedusertest");
 		// Error message text
 		String username = homePage.authenticatedUsername();
 		// Verify condition

@@ -35,9 +35,9 @@ public class TC_003RegisterUser extends TestBase {
 		}
 	}
 
-	@AfterClass
-	public void endTest() {
+	//@AfterClass
+	//public void endTest() {
 		// Close the browser
-		driver.close();
-	}
+	//	driver.close();
+	//}
 }

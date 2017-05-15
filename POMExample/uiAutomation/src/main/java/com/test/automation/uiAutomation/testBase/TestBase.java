@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
+import com.relevantcodes.extentreports.LogStatus;
 import com.test.automation.uiAutomation.excelReader.Excel_Reader;
 import com.test.automation.uiAutomation.homepage.explicitWait;
 import com.test.automation.uiAutomation.listener.Listener;
@@ -188,19 +189,26 @@ public class TestBase {
 
 	}
 	
+	public void log(String data){
+		//log.info(data);
+		Reporter.log(data);
+		test.log(LogStatus.INFO, data);
+	}
 	
 	public void getresult(ITestResult result){
 		if(result.getStatus()==ITestResult.SUCCESS){
-			
+			test.log(LogStatus.PASS,result.getName()+" test is pass");
 		}
 		else if(result.getStatus()==ITestResult.SKIP){
-			
+			test.log(LogStatus.SKIP,result.getName()+" test is skipped and skip reason is:-"+result.getThrowable());
 		}
-		else if(result.getStatus()==ITestResult.FAILURE){			
+		else if(result.getStatus()==ITestResult.FAILURE){
+			test.log(LogStatus.ERROR,result.getName()+" test is failed"+ result.getThrowable());
 			String screen = captureScreen("");
-			
+			test.log(LogStatus.FAIL,test.addScreenCapture(screen));
 		}
 		else if(result.getStatus()==ITestResult.STARTED){
+			test.log(LogStatus.INFO,result.getName()+" test is started");
 		}
 	}
 	
