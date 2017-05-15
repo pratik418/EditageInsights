@@ -8,13 +8,11 @@ import java.util.Calendar;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 import org.testng.Reporter;
 
-import com.test.automation.uiAutomation.homepage.explicitWait;
 import com.test.automation.uiAutomation.testBase.TestBase;
 
 public class Listener extends TestBase implements ITestListener {

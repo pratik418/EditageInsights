@@ -5,7 +5,6 @@ import static org.testng.Assert.assertTrue;
 import java.io.IOException;
 
 import org.openqa.selenium.support.PageFactory;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 

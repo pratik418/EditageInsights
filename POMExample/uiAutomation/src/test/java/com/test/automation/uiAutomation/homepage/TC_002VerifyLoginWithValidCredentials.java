@@ -24,7 +24,7 @@ public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 	public void validLoginCredentials() throws InterruptedException, IOException {
 		Homepage homePage = PageFactory.initElements(driver, Homepage.class);
 		// Login
-		homePage.loginApplicationvalid("authenticatsed-user-test@mailinator.com", "authenticatedusertest");
+		homePage.loginApplicationvalid("authenticated-user-test@mailinator.com", "authenticatedusertest");
 		// Error message text
 		String username = homePage.authenticatedUsername();
 		// Verify condition
