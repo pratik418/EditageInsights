@@ -109,6 +109,14 @@ public class Homepage {
 	@FindBy(xpath = "//div[@class='views-row views-row-1']//div[@class='content-listing-title']/a")
 	public WebElement firstContentTitle;
 
+	// Search Box
+	@FindBy(id = "edit-apachesolr-panels-search-form")
+	public WebElement searchBox;
+	
+	// Search Icon
+	@FindBy(id = "edit-submit")
+	public WebElement searchIcon;
+
 	// Login in Application Invalid Credentials
 	public void loginApplicationInvalid(String emailAddress, String Password) {
 		logIn.click();
