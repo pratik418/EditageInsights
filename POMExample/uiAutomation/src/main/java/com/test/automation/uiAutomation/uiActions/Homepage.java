@@ -13,8 +13,6 @@ import com.test.automation.uiAutomation.homepage.explicitWait;
 
 public class Homepage {
 
-	
-
 	private WebDriver driver;
 	explicitWait wait;
 
@@ -25,75 +23,91 @@ public class Homepage {
 
 	// Login Button
 	@FindBy(xpath = "//div[@class='anonymous-login anonymous-text']/a")
-	WebElement logIn;
+	public WebElement logIn;
 
 	// Login Pop-Up
 	@FindBy(xpath = "//div[@id='mini-panel-register_popup']")
-	WebElement popUpFrame;
+	public WebElement popUpFrame;
 
 	// Email ID in Login
 	@FindBy(id = "edit-name--2")
-	WebElement EmailId;
+	public WebElement EmailId;
 
 	// Password in Login
 	@FindBy(id = "edit-pass--2")
-	WebElement password;
+	public WebElement password;
 
 	// Login Button
 	@FindBy(id = "edit-submit--3")
-	WebElement loginButton;
+	public WebElement loginButton;
 
 	// Error Message
 	@FindBy(xpath = "//div[@class='messages messages--error']/h2")
-	WebElement errorMessage;
+	public WebElement errorMessage;
 
 	// Register button
 	@FindBy(xpath = "//div[@class='anonymous-register anonymous-text']")
-	WebElement registerButton;
+	public WebElement registerButton;
 
 	// Register form
 	@FindBy(id = "formm-bg")
-	WebElement registrationForm;
+	public WebElement registrationForm;
 
 	// Username block
-	@FindBy(xpath = "//div[@class='user-name']/span")
-	WebElement username;
+	@FindBy(xpath = "//div[@class='user-name']")
+	public WebElement username;
 
 	// First Name
 	@FindBy(id = "txtfirstname")
-	WebElement firstName;
+	public WebElement firstName;
 
 	// Last name
 	@FindBy(id = "txtlastname")
-	WebElement lastName;
+	public WebElement lastName;
 
 	// Email Address
 	@FindBy(id = "txtemail")
-	WebElement emailAddressRegister;
+	public WebElement emailAddressRegister;
 
 	// Password
 	@FindBy(id = "txtpwd")
-	WebElement passwordRegister;
+	public WebElement passwordRegister;
 
 	// Confirm Password
 	@FindBy(id = "txtcnfpwd")
-	WebElement confirmPassword;
+	public WebElement confirmPassword;
 
 	// Univeristy Name
 	@FindBy(id = "txtorg")
-	WebElement universityName;
+	public WebElement universityName;
 
 	// Job Title Select Id
 	@FindBy(id = "drpjdesc")
-	WebElement jobTitleId;
+	public WebElement jobTitleId;
 
 	// Captcha Text
 	@FindBy(xpath = "//span[@class='captchaText']")
-	WebElement captchaText;
+	public WebElement captchaText;
 
 	// Register for free button
 	@FindBy(id = "crsubmit")
-	WebElement registerFreeButton;
+	public WebElement registerFreeButton;
+
+	// Logout Link
+	@FindBy(xpath = "//div[@class='user-menu-authenticated GoogleAnalyticsET-processed']//a[contains(@href,'logout')]")
+	public WebElement logoutLink;
+
+	// 1st Menu Manuscript Preparation
+	@FindBy(xpath = "//nav[@id='block-system-main-menu']/ul/li[1]")
+	public WebElement manuscriptMenu;
+
+	// Save to Read later
+	@FindBy(xpath = "//div[@class='views-row views-row-1']//a[contains(@href,'insights/flag')]")
+	public WebElement saveLaterFlag;
+
+	// First Content Title in Menu
+	@FindBy(xpath = "//div[@class='views-row views-row-1']//div[@class='content-listing-title']/a")
+	public WebElement firstContentTitle;
 
 	// Login in Application Invalid Credentials
 	public void loginApplicationInvalid(String emailAddress, String Password) {
@@ -117,6 +131,7 @@ public class Homepage {
 		// Wait
 		wait.waitForElementToBeInvisible(By.xpath("//div[@class='overlay-close']"), 30);
 		wait.waitForLoad(driver);
+
 	}
 
 	// New User Registration
@@ -179,6 +194,13 @@ public class Homepage {
 		}
 	}
 
+	// Logout
+	public void logout() {
+		JavascriptExecutor executor = (JavascriptExecutor) driver;
+		executor.executeScript("arguments[0].click();", username);
+		executor.executeScript("arguments[0].click();", logoutLink);
+	}
+
 	// Error message
 	public String errorMessage() {
 		return errorMessage.getText();
@@ -187,6 +209,11 @@ public class Homepage {
 	// Username Text
 	public String authenticatedUsername() {
 		return username.getText();
+	}
+
+	// First Content Title Text
+	public String contentTitle() {
+		return firstContentTitle.getText();
 	}
 
 }

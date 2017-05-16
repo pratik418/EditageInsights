@@ -15,26 +15,17 @@ import com.test.automation.uiAutomation.uiActions.Homepage;
 public class TC_001VerifyLoginWithInvalidCredentials extends TestBase {
 
 
-	@DataProvider(name = "loginDataEmail")
-	public String[][] getTestData() {
-		String[][] testRecords = getData("LoginTestData.xlsx", "LoginData");
-		return testRecords;
-	}
-
 	@BeforeTest
 	public void setup() throws IOException {
 		init();
 	}
 
-	@Test(dataProvider = "loginDataEmail")
-	public void invalidLoginCredentials(String emailAddress, String password, String runMode)
-			throws InterruptedException {
-		if (runMode.equalsIgnoreCase("n")) {
-			throw new SkipException("user marked this record as no run");
-		}
+	@Test
+	public void invalidLoginCredentials() throws InterruptedException {
+		
 		Homepage homePage = PageFactory.initElements(driver, Homepage.class);
 		// Login
-		homePage.loginApplicationInvalid(emailAddress, password);
+		homePage.loginApplicationInvalid("abc@test.com", "abc");
 		// Error message text
 		String errorMessage = homePage.errorMessage();
 		// Verify condition
