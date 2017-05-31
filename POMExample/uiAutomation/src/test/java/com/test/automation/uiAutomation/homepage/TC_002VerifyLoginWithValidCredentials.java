@@ -15,7 +15,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.test.automation.uiAutomation.testBase.TestBase;
-import com.test.automation.uiAutomation.uiActions.Homepage;
+import com.test.automation.uiAutomation.uiActions.LoginRegister;
 
 public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 
@@ -35,7 +35,7 @@ public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 	@Test(dataProvider = "loginDataEmail")
 	public void validLoginCredentials(String emailAddress, String password, String runMode)
 			throws InterruptedException, IOException {
-		Homepage homePage = PageFactory.initElements(driver, Homepage.class);
+		LoginRegister homePage = PageFactory.initElements(driver, LoginRegister.class);
 		if (runMode.equalsIgnoreCase("n")) {
 			throw new SkipException("user marked this record as no run");
 		}
@@ -58,7 +58,7 @@ public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 	// link
 	@Test
 	public void authenticatedUserSaveToLibrary() throws InterruptedException, IOException {
-		Homepage homePage = PageFactory.initElements(driver, Homepage.class);
+		LoginRegister homePage = PageFactory.initElements(driver, LoginRegister.class);
 		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
 		boolean flag1 = false, flag2 = false;
 		// Login
@@ -70,7 +70,6 @@ public class TC_002VerifyLoginWithValidCredentials extends TestBase {
 			flag1 = true;
 		} else {
 			flag1 = false;
-			assertTrue(false, "User login unsuccessful");
 		}
 		// Manuscipt Preparation Menu Clicked
 		homePage.manuscriptMenu.click();

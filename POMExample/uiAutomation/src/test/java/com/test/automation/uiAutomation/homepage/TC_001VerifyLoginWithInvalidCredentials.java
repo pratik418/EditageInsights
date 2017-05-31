@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.test.automation.uiAutomation.testBase.TestBase;
-import com.test.automation.uiAutomation.uiActions.Homepage;
+import com.test.automation.uiAutomation.uiActions.LoginRegister;
 
 public class TC_001VerifyLoginWithInvalidCredentials extends TestBase {
 
@@ -21,7 +21,7 @@ public class TC_001VerifyLoginWithInvalidCredentials extends TestBase {
 	@Test
 	public void invalidLoginCredentials() throws InterruptedException {
 		
-		Homepage homePage = PageFactory.initElements(driver, Homepage.class);
+		LoginRegister homePage = PageFactory.initElements(driver, LoginRegister.class);
 		// Login
 		homePage.loginApplicationInvalid("abc@test.com", "abc");
 		// Error message text

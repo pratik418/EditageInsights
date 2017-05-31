@@ -197,7 +197,7 @@ public class TestBase {
 	
 	public void getresult(ITestResult result){
 		if(result.getStatus()==ITestResult.SUCCESS){
-			test.log(LogStatus.PASS,result.getName()+" test is pass");
+			test.log(LogStatus.PASS,result.getName()+" test is passed");
 		}
 		else if(result.getStatus()==ITestResult.SKIP){
 			test.log(LogStatus.SKIP,result.getName()+" test is skipped and skip reason is:-"+result.getThrowable());
