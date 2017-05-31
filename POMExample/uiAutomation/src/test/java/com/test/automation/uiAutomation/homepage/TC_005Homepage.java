@@ -104,7 +104,7 @@ public class TC_005Homepage extends TestBase {
 
 	// Verify "Updates and Events" should contain image and title
 	@Test
-	public void updateEventsVerifyImgTitle() throws InterruptedException, ParseException {
+	public void updateEventsVerifyImgTitleListing() throws InterruptedException, ParseException {
 
 		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
 		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
@@ -140,9 +140,9 @@ public class TC_005Homepage extends TestBase {
 		}
 		// Verify Final Condition
 		if (flag1 && flag2) {
-			assertTrue(true, "Update Events page contains Images and Titles");
+			assertTrue(true, "Update Events page contains Images and Titles on Listing page");
 		} else {
-			assertTrue(true, "Update Events page does not contain Images and Titles");
+			assertTrue(true, "Update Events page does not contain Images and Titles on Listing page");
 		}
 	}
 
@@ -169,6 +169,44 @@ public class TC_005Homepage extends TestBase {
 			assertTrue(true, "On clicking content on Updates and Events we are getting directed to Detailed Page");
 		} else {
 			assertTrue(false, "On clicking content on Updates and Events we are getting directed to Detailed Page");
+		}
+	}
+
+	// Verify "Updates and Events" should contain image and title
+	@Test
+	public void updateEventsVerifyImgTitleHomePage() throws InterruptedException, ParseException {
+		boolean flag1 = false, flag2 = false;
+		List<WebElement> noOfColumnsImages;
+		noOfColumnsImages = driver.findElements(By.xpath(
+				"//div[@class='panel-pane pane-views-panes pane-update-and-events-panel-pane-1']//span[@class='thumbnail']/a/img"));
+		List<WebElement> noOfColumnsTitle;
+		noOfColumnsTitle = driver.findElements(By.xpath(
+				"//div[@class='panel-pane pane-views-panes pane-update-and-events-panel-pane-1']//span[@class='field-content']/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsImages) {
+			// set flag when title is found
+			if (cell.getAttribute("src").contains("/sites/default/files/styles/")) {
+				flag1 = true;
+			} else {
+				flag1 = false;
+				break;
+			}
+		}
+		// Verify Presence of Title
+		for (WebElement cellTitle : noOfColumnsTitle) {
+			// set flag when title is found
+			if (cellTitle.getAttribute("href").contains("/insights/")) {
+				flag2 = true;
+			} else {
+				flag2 = false;
+				break;
+			}
+		}
+		// Verify Final Condition
+		if (flag1 && flag2) {
+			assertTrue(true, "Update Events page contains Images and Titles on Homepage");
+		} else {
+			assertTrue(true, "Update Events page does not contain Images and Titles on Homepage");
 		}
 	}
 

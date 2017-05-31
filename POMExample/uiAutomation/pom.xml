@@ -124,7 +124,7 @@
 				
 				<configuration>
 					<!-- From Email address -->
-					<from>pratik418@gmail.com</from>
+					<from>pratikcactus@gmail.com</from>
 					
 					<!--  Email subject -->
 					<subject>Test Automation Report</subject>

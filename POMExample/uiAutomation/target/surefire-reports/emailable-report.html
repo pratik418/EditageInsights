@@ -1,40 +1,106 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>TestNG:  Unit Test</title>
-<style type="text/css">
-table caption,table.info_table,table.result,table.passed,table.failed {margin-bottom:10px;border:1px solid #000099;border-collapse:collapse;empty-cells:show;}
-table.info_table td,table.info_table th,table.result td,table.result th,table.passed td,table.passed th,table.failed td,table.failed th {
-border:1px solid #000099;padding:.25em .5em .25em .5em
-}
-table.result th {vertical-align:bottom}
-tr.param th {padding-left:1em;padding-right:1em}
-tr.param td {padding-left:.5em;padding-right:2em}
-td.numi,th.numi,td.numi_attn {
-text-align:right
-}
-tr.total td {font-weight:bold}
-table caption {
-text-align:center;font-weight:bold;
-}
-table.passed tr.stripe td,table tr.passedodd td {background-color: #00AA00;}
-table.passed td,table tr.passedeven td {background-color: #33FF33;}
-table.passed tr.stripe td,table tr.skippedodd td {background-color: #cccccc;}
-table.passed td,table tr.skippedodd td {background-color: #dddddd;}
-table.failed tr.stripe td,table tr.failedodd td,table.result td.numi_attn {background-color: #FF3333;}
-table.failed td,table tr.failedeven td,table.result tr.stripe td.numi_attn {background-color: #DD0000;}
-tr.stripe td,tr.stripe th {background-color: #E6EBF9;}
-p.totop {font-size:85%;text-align:center;border-bottom:2px black solid}
-div.shootout {padding:2em;border:3px #4854A8 solid}
-</style>
-</head>
-<body>
-<table cellspacing="0" cellpadding="0" class="result">
-<tr><th>Test</th><th class="numi">Methods<br/>Passed</th><th class="numi">Scenarios<br/>Passed</th><th class="numi"># skipped</th><th class="numi"># failed</th><th class="numi">Total<br/>Time</th><th class="numi">Included<br/>Groups</th><th class="numi">Excluded<br/>Groups</th></tr>
-<tr><td style="text-align:left;padding-right:2em">Command line test</td><td class="numi">0</td><td class="numi">0</td><td class="numi">0</td><td class="numi">0</td><td class="numi">0.0 seconds</td><td class="numi"></td><td class="numi"></td></tr>
-</table>
-<table cellspacing="0" cellpadding="0" class="passed" id="summary">
-<tr><th>Class</th><th>Method</th><th># of<br/>Scenarios</th><th>Start</th><th>Time<br/>(ms)</th></tr>
-</table>
-<h1>Command line test</h1>
-</body></html>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>TestNG Report</title><style type="text/css">table {margin-bottom:10px;border-collapse:collapse;empty-cells:show}th,td {border:1px solid #009;padding:.25em .5em}th {vertical-align:bottom}td {vertical-align:top}table a {font-weight:bold}.stripe td {background-color: #E6EBF9}.num {text-align:right}.passedodd td {background-color: #3F3}.passedeven td {background-color: #0A0}.skippedodd td {background-color: #DDD}.skippedeven td {background-color: #CCC}.failedodd td,.attn {background-color: #F33}.failedeven td,.stripe .attn {background-color: #D00}.stacktrace {white-space:pre;font-family:monospace}.totop {font-size:85%;text-align:center;border-bottom:2px solid #000}</style></head><body><table><tr><th>Test</th><th># Passed</th><th># Skipped</th><th># Failed</th><th>Time (ms)</th><th>Included Groups</th><th>Excluded Groups</th></tr><tr><th colspan="7">Regression Suite</th></tr><tr><td><a href="#t0">HomepageTest</a></td><td class="num">1</td><td class="num attn">1</td><td class="num attn">3</td><td class="num">331,218</td><td></td><td></td></tr></table><table><thead><tr><th>Class</th><th>Method</th><th>Start</th><th>Time (ms)</th></tr></thead><tbody><tr><th colspan="4">Regression Suite</th></tr></tbody><tbody id="t0"><tr><th colspan="4">HomepageTest &#8212; failed</th></tr><tr class="failedeven"><td rowspan="3">com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials</td><td><a href="#m0">validLoginCredentials</a></td><td rowspan="3">1494936611694</td><td rowspan="3">60047</td></tr><tr class="failedeven"><td><a href="#m1">validLoginCredentials</a></td></tr><tr class="failedeven"><td><a href="#m2">validLoginCredentials</a></td></tr><tr><th colspan="4">HomepageTest &#8212; skipped</th></tr><tr class="skippedeven"><td rowspan="1">com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials</td><td><a href="#m3">validLoginCredentials</a></td><td rowspan="1">1494936551587</td><td rowspan="1">60058</td></tr><tr><th colspan="4">HomepageTest &#8212; passed</th></tr><tr class="passedeven"><td rowspan="1">com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials</td><td><a href="#m4">authenticatedUserSaveToLibrary</a></td><td rowspan="1">1494936478089</td><td rowspan="1">72614</td></tr></tbody></table><h2>HomepageTest</h2><h3 id="m0">com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials#validLoginCredentials</h3><table class="result"><tr class="param"><th>Parameter #1</th><th>Parameter #2</th><th>Parameter #3</th></tr><tr class="param stripe"><td>authenticated-user-test@mailinator.com</td><td>authenticatedusertest</td><td>y</td></tr><tr><th colspan="3">Messages</th></tr><tr><td colspan="3"><div class="messages">Test started running:validLoginCredentials<br/>Test is failed:validLoginCredentials<br/><a href='D:\OneDrive - CACTUS\My Documents\GitHub\EditageInsights\POMExample\uiAutomation\src\main\java\com\test\automation\uiAutomation\failure_screenshots\validLoginCredentials_16_05_2017_05_41_11.png'> <img src='D:\OneDrive - CACTUS\My Documents\GitHub\EditageInsights\POMExample\uiAutomation\src\main\java\com\test\automation\uiAutomation\failure_screenshots\validLoginCredentials_16_05_2017_05_41_11.png'height='100' width='100'/> </a></div></td></tr><tr><th colspan="3">Exception</th></tr><tr><td colspan="3"><div class="stacktrace">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {&quot;method&quot;:&quot;xpath&quot;,&quot;selector&quot;:&quot;//div[@class=&apos;anonymous-login anonymous-text&apos;]/a&quot;}
+  (Session info: chrome=57.0.2987.133)
+  (Driver info: chromedriver=2.29.461591 (62ebf098771772160f391d75e589dc567915b233),platform=Windows NT 10.0.14393 x86_64) (WARNING: The server did not provide any stacktrace information)
+Command duration or timeout: 60.05 seconds
+For documentation on this error, please visit: http://seleniumhq.org/exceptions/no_such_element.html
+Build info: version: &apos;3.3.1&apos;, revision: &apos;5234b325d5&apos;, time: &apos;2017-03-10 09:10:29 +0000&apos;
+System info: host: &apos;PRATIKS&apos;, ip: &apos;10.105.2.74&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;1.8.0_131&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities [{applicationCacheEnabled=false, rotatable=false, mobileEmulationEnabled=false, networkConnectionEnabled=false, chrome={chromedriverVersion=2.29.461591 (62ebf098771772160f391d75e589dc567915b233), userDataDir=C:\Users\PRATIK~1.SID\AppData\Local\Temp\scoped_dir4872_29666}, takesHeapSnapshot=true, pageLoadStrategy=normal, databaseEnabled=false, handlesAlerts=true, hasTouchScreen=false, version=57.0.2987.133, platform=XP, browserConnectionEnabled=false, nativeEvents=true, acceptSslCerts=true, locationContextEnabled=true, webStorageEnabled=true, browserName=chrome, takesScreenshot=true, javascriptEnabled=true, cssSelectorsEnabled=true, unexpectedAlertBehaviour=}]
+Session ID: 5e3ef088caa8014f8bdf5d4b9fef88de
+*** Element info: {Using=xpath, value=//div[@class=&apos;anonymous-login anonymous-text&apos;]/a}
+	at org.openqa.selenium.remote.ErrorHandler.createThrowable(ErrorHandler.java:216)
+	at org.openqa.selenium.remote.ErrorHandler.throwIfResponseFailed(ErrorHandler.java:168)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:638)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:371)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:476)
+	at org.openqa.selenium.By$ByXPath.findElement(By.java:361)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:363)
+	at org.openqa.selenium.support.pagefactory.DefaultElementLocator.findElement(DefaultElementLocator.java:69)
+	at org.openqa.selenium.support.pagefactory.internal.LocatingElementHandler.invoke(LocatingElementHandler.java:38)
+	at com.sun.proxy.$Proxy8.click(Unknown Source)
+	at com.test.automation.uiAutomation.uiActions.Homepage.loginApplicationvalid(Homepage.java:134)
+	at com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials.validLoginCredentials(TC_002VerifyLoginWithValidCredentials.java:43)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+... Removed 14 stack frames</div></td></tr></table><p class="totop"><a href="#summary">back to summary</a></p><h3 id="m1">com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials#validLoginCredentials</h3><table class="result"><tr class="param"><th>Parameter #1</th><th>Parameter #2</th><th>Parameter #3</th></tr><tr class="param stripe"><td>pratik.sidam@cactusglobal.com</td><td>pratik.sidam</td><td>y</td></tr><tr><th colspan="3">Messages</th></tr><tr><td colspan="3"><div class="messages">Test started running:validLoginCredentials<br/>Test is failed:validLoginCredentials<br/><a href='D:\OneDrive - CACTUS\My Documents\GitHub\EditageInsights\POMExample\uiAutomation\src\main\java\com\test\automation\uiAutomation\failure_screenshots\validLoginCredentials_16_05_2017_05_43_12.png'> <img src='D:\OneDrive - CACTUS\My Documents\GitHub\EditageInsights\POMExample\uiAutomation\src\main\java\com\test\automation\uiAutomation\failure_screenshots\validLoginCredentials_16_05_2017_05_43_12.png'height='100' width='100'/> </a></div></td></tr><tr><th colspan="3">Exception</th></tr><tr><td colspan="3"><div class="stacktrace">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {&quot;method&quot;:&quot;xpath&quot;,&quot;selector&quot;:&quot;//div[@class=&apos;anonymous-login anonymous-text&apos;]/a&quot;}
+  (Session info: chrome=57.0.2987.133)
+  (Driver info: chromedriver=2.29.461591 (62ebf098771772160f391d75e589dc567915b233),platform=Windows NT 10.0.14393 x86_64) (WARNING: The server did not provide any stacktrace information)
+Command duration or timeout: 60.04 seconds
+For documentation on this error, please visit: http://seleniumhq.org/exceptions/no_such_element.html
+Build info: version: &apos;3.3.1&apos;, revision: &apos;5234b325d5&apos;, time: &apos;2017-03-10 09:10:29 +0000&apos;
+System info: host: &apos;PRATIKS&apos;, ip: &apos;10.105.2.74&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;1.8.0_131&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities [{applicationCacheEnabled=false, rotatable=false, mobileEmulationEnabled=false, networkConnectionEnabled=false, chrome={chromedriverVersion=2.29.461591 (62ebf098771772160f391d75e589dc567915b233), userDataDir=C:\Users\PRATIK~1.SID\AppData\Local\Temp\scoped_dir4872_29666}, takesHeapSnapshot=true, pageLoadStrategy=normal, databaseEnabled=false, handlesAlerts=true, hasTouchScreen=false, version=57.0.2987.133, platform=XP, browserConnectionEnabled=false, nativeEvents=true, acceptSslCerts=true, locationContextEnabled=true, webStorageEnabled=true, browserName=chrome, takesScreenshot=true, javascriptEnabled=true, cssSelectorsEnabled=true, unexpectedAlertBehaviour=}]
+Session ID: 5e3ef088caa8014f8bdf5d4b9fef88de
+*** Element info: {Using=xpath, value=//div[@class=&apos;anonymous-login anonymous-text&apos;]/a}
+	at org.openqa.selenium.remote.ErrorHandler.createThrowable(ErrorHandler.java:216)
+	at org.openqa.selenium.remote.ErrorHandler.throwIfResponseFailed(ErrorHandler.java:168)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:638)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:371)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:476)
+	at org.openqa.selenium.By$ByXPath.findElement(By.java:361)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:363)
+	at org.openqa.selenium.support.pagefactory.DefaultElementLocator.findElement(DefaultElementLocator.java:69)
+	at org.openqa.selenium.support.pagefactory.internal.LocatingElementHandler.invoke(LocatingElementHandler.java:38)
+	at com.sun.proxy.$Proxy8.click(Unknown Source)
+	at com.test.automation.uiAutomation.uiActions.Homepage.loginApplicationvalid(Homepage.java:134)
+	at com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials.validLoginCredentials(TC_002VerifyLoginWithValidCredentials.java:43)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+... Removed 14 stack frames</div></td></tr></table><p class="totop"><a href="#summary">back to summary</a></p><h3 id="m2">com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials#validLoginCredentials</h3><table class="result"><tr class="param"><th>Parameter #1</th><th>Parameter #2</th><th>Parameter #3</th></tr><tr class="param stripe"><td>pratik.sidam@cactusglobal.com</td><td>pratik.sidam</td><td>y</td></tr><tr><th colspan="3">Messages</th></tr><tr><td colspan="3"><div class="messages">Test started running:validLoginCredentials<br/>Test is failed:validLoginCredentials<br/><a href='D:\OneDrive - CACTUS\My Documents\GitHub\EditageInsights\POMExample\uiAutomation\src\main\java\com\test\automation\uiAutomation\failure_screenshots\validLoginCredentials_16_05_2017_05_42_12.png'> <img src='D:\OneDrive - CACTUS\My Documents\GitHub\EditageInsights\POMExample\uiAutomation\src\main\java\com\test\automation\uiAutomation\failure_screenshots\validLoginCredentials_16_05_2017_05_42_12.png'height='100' width='100'/> </a></div></td></tr><tr><th colspan="3">Exception</th></tr><tr><td colspan="3"><div class="stacktrace">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {&quot;method&quot;:&quot;xpath&quot;,&quot;selector&quot;:&quot;//div[@class=&apos;anonymous-login anonymous-text&apos;]/a&quot;}
+  (Session info: chrome=57.0.2987.133)
+  (Driver info: chromedriver=2.29.461591 (62ebf098771772160f391d75e589dc567915b233),platform=Windows NT 10.0.14393 x86_64) (WARNING: The server did not provide any stacktrace information)
+Command duration or timeout: 60.06 seconds
+For documentation on this error, please visit: http://seleniumhq.org/exceptions/no_such_element.html
+Build info: version: &apos;3.3.1&apos;, revision: &apos;5234b325d5&apos;, time: &apos;2017-03-10 09:10:29 +0000&apos;
+System info: host: &apos;PRATIKS&apos;, ip: &apos;10.105.2.74&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;1.8.0_131&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities [{applicationCacheEnabled=false, rotatable=false, mobileEmulationEnabled=false, networkConnectionEnabled=false, chrome={chromedriverVersion=2.29.461591 (62ebf098771772160f391d75e589dc567915b233), userDataDir=C:\Users\PRATIK~1.SID\AppData\Local\Temp\scoped_dir4872_29666}, takesHeapSnapshot=true, pageLoadStrategy=normal, databaseEnabled=false, handlesAlerts=true, hasTouchScreen=false, version=57.0.2987.133, platform=XP, browserConnectionEnabled=false, nativeEvents=true, acceptSslCerts=true, locationContextEnabled=true, webStorageEnabled=true, browserName=chrome, takesScreenshot=true, javascriptEnabled=true, cssSelectorsEnabled=true, unexpectedAlertBehaviour=}]
+Session ID: 5e3ef088caa8014f8bdf5d4b9fef88de
+*** Element info: {Using=xpath, value=//div[@class=&apos;anonymous-login anonymous-text&apos;]/a}
+	at org.openqa.selenium.remote.ErrorHandler.createThrowable(ErrorHandler.java:216)
+	at org.openqa.selenium.remote.ErrorHandler.throwIfResponseFailed(ErrorHandler.java:168)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:638)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:371)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:476)
+	at org.openqa.selenium.By$ByXPath.findElement(By.java:361)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:363)
+	at org.openqa.selenium.support.pagefactory.DefaultElementLocator.findElement(DefaultElementLocator.java:69)
+	at org.openqa.selenium.support.pagefactory.internal.LocatingElementHandler.invoke(LocatingElementHandler.java:38)
+	at com.sun.proxy.$Proxy8.click(Unknown Source)
+	at com.test.automation.uiAutomation.uiActions.Homepage.loginApplicationvalid(Homepage.java:134)
+	at com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials.validLoginCredentials(TC_002VerifyLoginWithValidCredentials.java:43)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+... Removed 14 stack frames</div></td></tr></table><p class="totop"><a href="#summary">back to summary</a></p><h3 id="m3">com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials#validLoginCredentials</h3><table class="result"><tr class="param"><th>Parameter #1</th><th>Parameter #2</th><th>Parameter #3</th></tr><tr class="param stripe"><td>authenticated-user-test@mailinator.com</td><td>authenticatedusertest</td><td>y</td></tr><tr><th colspan="3">Messages</th></tr><tr><td colspan="3"><div class="messages">Test started running:validLoginCredentials<br/>Test is skipped:validLoginCredentials</div></td></tr><tr><th colspan="3">Exception</th></tr><tr><td colspan="3"><div class="stacktrace">org.openqa.selenium.NoSuchElementException: no such element: Unable to locate element: {&quot;method&quot;:&quot;xpath&quot;,&quot;selector&quot;:&quot;//div[@class=&apos;anonymous-login anonymous-text&apos;]/a&quot;}
+  (Session info: chrome=57.0.2987.133)
+  (Driver info: chromedriver=2.29.461591 (62ebf098771772160f391d75e589dc567915b233),platform=Windows NT 10.0.14393 x86_64) (WARNING: The server did not provide any stacktrace information)
+Command duration or timeout: 60.06 seconds
+For documentation on this error, please visit: http://seleniumhq.org/exceptions/no_such_element.html
+Build info: version: &apos;3.3.1&apos;, revision: &apos;5234b325d5&apos;, time: &apos;2017-03-10 09:10:29 +0000&apos;
+System info: host: &apos;PRATIKS&apos;, ip: &apos;10.105.2.74&apos;, os.name: &apos;Windows 10&apos;, os.arch: &apos;amd64&apos;, os.version: &apos;10.0&apos;, java.version: &apos;1.8.0_131&apos;
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities [{applicationCacheEnabled=false, rotatable=false, mobileEmulationEnabled=false, networkConnectionEnabled=false, chrome={chromedriverVersion=2.29.461591 (62ebf098771772160f391d75e589dc567915b233), userDataDir=C:\Users\PRATIK~1.SID\AppData\Local\Temp\scoped_dir4872_29666}, takesHeapSnapshot=true, pageLoadStrategy=normal, databaseEnabled=false, handlesAlerts=true, hasTouchScreen=false, version=57.0.2987.133, platform=XP, browserConnectionEnabled=false, nativeEvents=true, acceptSslCerts=true, locationContextEnabled=true, webStorageEnabled=true, browserName=chrome, takesScreenshot=true, javascriptEnabled=true, cssSelectorsEnabled=true, unexpectedAlertBehaviour=}]
+Session ID: 5e3ef088caa8014f8bdf5d4b9fef88de
+*** Element info: {Using=xpath, value=//div[@class=&apos;anonymous-login anonymous-text&apos;]/a}
+	at org.openqa.selenium.remote.ErrorHandler.createThrowable(ErrorHandler.java:216)
+	at org.openqa.selenium.remote.ErrorHandler.throwIfResponseFailed(ErrorHandler.java:168)
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:638)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:371)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElementByXPath(RemoteWebDriver.java:476)
+	at org.openqa.selenium.By$ByXPath.findElement(By.java:361)
+	at org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:363)
+	at org.openqa.selenium.support.pagefactory.DefaultElementLocator.findElement(DefaultElementLocator.java:69)
+	at org.openqa.selenium.support.pagefactory.internal.LocatingElementHandler.invoke(LocatingElementHandler.java:38)
+	at com.sun.proxy.$Proxy8.click(Unknown Source)
+	at com.test.automation.uiAutomation.uiActions.Homepage.loginApplicationvalid(Homepage.java:134)
+	at com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials.validLoginCredentials(TC_002VerifyLoginWithValidCredentials.java:43)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+... Removed 14 stack frames</div></td></tr></table><p class="totop"><a href="#summary">back to summary</a></p><h3 id="m4">com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials#authenticatedUserSaveToLibrary</h3><table class="result"><tr><th>Messages</th></tr><tr><td><div class="messages">Test started running:authenticatedUserSaveToLibrary<br/>Test is success:authenticatedUserSaveToLibrary<br/><a href='D:\OneDrive - CACTUS\My Documents\GitHub\EditageInsights\POMExample\uiAutomation\src\main\java\com\test\automation\uiAutomation\success_screenshots\authenticatedUserSaveToLibrary_16_05_2017_05_39_10.png'> <img src='D:\OneDrive - CACTUS\My Documents\GitHub\EditageInsights\POMExample\uiAutomation\src\main\java\com\test\automation\uiAutomation\success_screenshots\authenticatedUserSaveToLibrary_16_05_2017_05_39_10.png'height='100' width='100'/> </a></div></td></tr></table><p class="totop"><a href="#summary">back to summary</a></p></body></html>

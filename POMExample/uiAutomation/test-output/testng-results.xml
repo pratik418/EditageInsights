@@ -1,25 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results skipped="0" failed="0" ignored="0" total="1" passed="1">
+<testng-results skipped="0" failed="0" ignored="4" total="5" passed="1">
   <reporter-output>
   </reporter-output>
-  <suite name="Default suite" duration-ms="19821" started-at="2017-05-05T12:51:58Z" finished-at="2017-05-05T12:52:17Z">
+  <suite name="Default suite" duration-ms="15697" started-at="2017-05-31T13:16:38Z" finished-at="2017-05-31T13:16:54Z">
     <groups>
     </groups>
-    <test name="Default test" duration-ms="19821" started-at="2017-05-05T12:51:58Z" finished-at="2017-05-05T12:52:17Z">
-      <class name="com.test.automation.uiAutomation.homepage.TC_001VerifyLoginWithInvalidCredentials">
-        <test-method status="PASS" signature="setup()[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_001VerifyLoginWithInvalidCredentials@6f7fd0e6]" name="setup" is-config="true" duration-ms="13003" started-at="2017-05-05T18:21:58Z" finished-at="2017-05-05T18:22:11Z">
+    <test name="Default test" duration-ms="15697" started-at="2017-05-31T13:16:38Z" finished-at="2017-05-31T13:16:54Z">
+      <class name="com.test.automation.uiAutomation.homepage.TC_005Homepage">
+        <test-method status="PASS" signature="setup()[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_005Homepage@1bce4f0a]" name="setup" is-config="true" duration-ms="14047" started-at="2017-05-31T18:46:38Z" finished-at="2017-05-31T18:46:52Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- setup -->
-        <test-method status="PASS" signature="invalidLoginCredentials()[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_001VerifyLoginWithInvalidCredentials@6f7fd0e6]" name="invalidLoginCredentials" duration-ms="6576" started-at="2017-05-05T18:22:11Z" finished-at="2017-05-05T18:22:17Z">
+        <test-method status="PASS" signature="beforeMethod(java.lang.reflect.Method)[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_005Homepage@1bce4f0a]" name="beforeMethod" is-config="true" duration-ms="6" started-at="2017-05-31T18:46:52Z" finished-at="2017-05-31T18:46:52Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[public void com.test.automation.uiAutomation.homepage.TC_005Homepage.updateEventsVerifyImgTitleHomePage() throws java.lang.InterruptedException,java.text.ParseException]]>
+              </value>
+            </param>
+          </params>
           <reporter-output>
           </reporter-output>
-        </test-method> <!-- invalidLoginCredentials -->
-        <test-method status="PASS" signature="endTest()[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_001VerifyLoginWithInvalidCredentials@6f7fd0e6]" name="endTest" is-config="true" duration-ms="202" started-at="2017-05-05T18:22:17Z" finished-at="2017-05-05T18:22:17Z">
+        </test-method> <!-- beforeMethod -->
+        <test-method status="PASS" signature="updateEventsVerifyImgTitleHomePage()[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_005Homepage@1bce4f0a]" name="updateEventsVerifyImgTitleHomePage" duration-ms="276" started-at="2017-05-31T18:46:52Z" finished-at="2017-05-31T18:46:52Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- updateEventsVerifyImgTitleHomePage -->
+        <test-method status="PASS" signature="afterMethod(org.testng.ITestResult)[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_005Homepage@1bce4f0a]" name="afterMethod" is-config="true" duration-ms="1" started-at="2017-05-31T18:46:52Z" finished-at="2017-05-31T18:46:52Z">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[[TestResult name=updateEventsVerifyImgTitleHomePage status=SUCCESS method=TC_005Homepage.updateEventsVerifyImgTitleHomePage()[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_005Homepage@1bce4f0a] output={null}]]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method status="PASS" signature="endTest()[pri:0, instance:com.test.automation.uiAutomation.homepage.TC_005Homepage@1bce4f0a]" name="endTest" is-config="true" duration-ms="1342" started-at="2017-05-31T18:46:52Z" finished-at="2017-05-31T18:46:54Z">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- endTest -->
-      </class> <!-- com.test.automation.uiAutomation.homepage.TC_001VerifyLoginWithInvalidCredentials -->
+      </class> <!-- com.test.automation.uiAutomation.homepage.TC_005Homepage -->
     </test> <!-- Default test -->
   </suite> <!-- Default suite -->
 </testng-results>

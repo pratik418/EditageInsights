@@ -2,11 +2,12 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 
 
-<suite name="Regression Suite">
+<suite name="Regression Suite" preserve-order="true" parallel="classes" thread-count="3">
 <listeners>
 <listener class-name="com.test.automation.uiAutomation.listener.Listener"></listener>
+<listener class-name="com.test.automation.uiAutomation.listener.RetryListener"></listener>
 </listeners>
-<test name="TC_002VerifyLoginWithValidCredentials">
+<test name="HomepageTest">
 <classes>
 <class name="com.test.automation.uiAutomation.homepage.TC_002VerifyLoginWithValidCredentials"></class>
 </classes>

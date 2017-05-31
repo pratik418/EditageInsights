@@ -1,0 +1,219 @@
+package com.test.automation.uiAutomation.homepage;
+
+import static org.testng.Assert.assertTrue;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import com.test.automation.uiAutomation.testBase.TestBase;
+import com.test.automation.uiAutomation.uiActions.HomePage;
+import com.test.automation.uiAutomation.uiActions.LoginRegister;
+import com.test.automation.uiAutomation.uiActions.Searchpage;
+
+public class TC_005Homepage extends TestBase {
+
+	@BeforeTest
+	public void setup() throws IOException {
+		init();
+	}
+
+	// Verify when we click on "Get Your Copy Now" unauthenticated user is
+	// directed to registration page
+	@Test
+	public void getYourCopy() throws InterruptedException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		LoginRegister loginReg = PageFactory.initElements(driver, LoginRegister.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// CLick on Get your copy image
+		homepage.getYourCopy.click();
+		// Switch to register Iframe
+		driver.switchTo().frame("insights-widget");
+		// Wait
+		wait.waitForElementFluently(loginReg.registrationForm, 30);
+		// Verify final condition
+		if (driver.findElement(By.id("txtpwd")).isDisplayed()) {
+			assertTrue(true,
+					"On clicking Get Your Copy Now link unauthenticated user is directed to registration page");
+		} else {
+			assertTrue(false,
+					"On clicking Get Your Copy Now link unauthenticated user is not directed to registration page");
+		}
+	}
+
+	// Verify "Updates and Events" shows the latest content
+	@Test
+	public void updateEventsLatestContent() throws InterruptedException, ParseException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+		boolean flag1 = false;
+		// Click on Workshop Tab
+		homepage.updateEvent.click();
+		wait.waitForLoad(driver);
+		// Store the date in list
+		List<Date> listDates = new ArrayList<Date>();
+		List<Date> sortDates = new ArrayList<Date>();
+		List<WebElement> elementList = driver.findElements(By.xpath("//span[@class='posted-date']"));
+		for (WebElement we : elementList) {
+			Date date = format.parse(we.getText());
+			listDates.add(date);
+			sortDates.add(date);
+
+		}
+		// Sort based on collections
+		Collections.sort(sortDates);
+		Collections.reverse(sortDates);
+		// Use iterator for checking values
+		Iterator<Date> firstDate = listDates.iterator();
+		Iterator<Date> secondDate = sortDates.iterator();
+		while (firstDate.hasNext()) {
+			Date date = firstDate.next();
+			// recreate iterator for second list
+
+			Date sdate = secondDate.next();
+			if (date.equals(sdate)) {
+				flag1 = true;
+			} else {
+				flag1 = false;
+				break;
+			}
+		}
+		// Final Condition
+		if (flag1) {
+			assertTrue(true, "Update Events shows the latest content");
+		} else {
+			assertTrue(false, "Update Events does not show the latest content");
+		}
+	}
+
+	// Verify "Updates and Events" should contain image and title
+	@Test
+	public void updateEventsVerifyImgTitle() throws InterruptedException, ParseException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		boolean flag1 = false, flag2 = false;
+		// Click on Workshop Tab
+		homepage.updateEvent.click();
+		wait.waitForLoad(driver);
+		// Store the date in list
+		List<WebElement> noOfColumnsImages;
+		noOfColumnsImages = driver.findElements(By.xpath("//span[@class='thumbnail']//img"));
+		List<WebElement> noOfColumnsTitle;
+		noOfColumnsTitle = driver.findElements(
+				By.xpath("//div[@class='views-field views-field-title']//span[@class='field-content']/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsImages) {
+			// set flag when title is found
+			if (cell.getAttribute("src").contains("/sites/default/files/styles/")) {
+				flag1 = true;
+			} else {
+				flag1 = false;
+				break;
+			}
+		}
+		// Verify Presence of Title
+		for (WebElement cellTitle : noOfColumnsTitle) {
+			// set flag when title is found
+			if (cellTitle.getAttribute("href").contains("/insights/")) {
+				flag2 = true;
+			} else {
+				flag2 = false;
+				break;
+			}
+		}
+		// Verify Final Condition
+		if (flag1 && flag2) {
+			assertTrue(true, "Update Events page contains Images and Titles");
+		} else {
+			assertTrue(true, "Update Events page does not contain Images and Titles");
+		}
+	}
+
+	// Verify clicking on content under "Updates and Events" takes to Detailed
+	// Article
+	@Test
+	public void updateEventDetailPageDirect() throws InterruptedException, ParseException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		Searchpage search = PageFactory.initElements(driver, Searchpage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// Click on Workshop Tab
+		homepage.updateEvent.click();
+		wait.waitForLoad(driver);
+		// Get the First Title in Updates and Events Page
+		String title = homepage.updateEventFirst.getText();
+		// Click on the first title
+		homepage.updateEventFirst.click();
+		wait.waitForLoad(driver);
+		// Get the Heading Title on Detailed Page
+		String mainTitle = search.askCommunityHeading.getText();
+		// Verify Final Condition
+		if (title.equals(mainTitle)) {
+			assertTrue(true, "On clicking content on Updates and Events we are getting directed to Detailed Page");
+		} else {
+			assertTrue(false, "On clicking content on Updates and Events we are getting directed to Detailed Page");
+		}
+	}
+	
+	// Verify "Updates and Events" should contain image and title
+		@Test
+		public void updateEventsVerifyImgTitle() throws InterruptedException, ParseException {
+
+			HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+			explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+			boolean flag1 = false, flag2 = false;
+			// Click on Workshop Tab
+			homepage.updateEvent.click();
+			wait.waitForLoad(driver);
+			// Store the date in list
+			List<WebElement> noOfColumnsImages;
+			noOfColumnsImages = driver.findElements(By.xpath("//span[@class='thumbnail']//img"));
+			List<WebElement> noOfColumnsTitle;
+			noOfColumnsTitle = driver.findElements(
+					By.xpath("//div[@class='views-field views-field-title']//span[@class='field-content']/a"));
+			// Verify Presence of Images
+			for (WebElement cell : noOfColumnsImages) {
+				// set flag when title is found
+				if (cell.getAttribute("src").contains("/sites/default/files/styles/")) {
+					flag1 = true;
+				} else {
+					flag1 = false;
+					break;
+				}
+			}
+			// Verify Presence of Title
+			for (WebElement cellTitle : noOfColumnsTitle) {
+				// set flag when title is found
+				if (cellTitle.getAttribute("href").contains("/insights/")) {
+					flag2 = true;
+				} else {
+					flag2 = false;
+					break;
+				}
+			}
+			// Verify Final Condition
+			if (flag1 && flag2) {
+				assertTrue(true, "Update Events page contains Images and Titles");
+			} else {
+				assertTrue(true, "Update Events page does not contain Images and Titles");
+			}
+		}
+
+}

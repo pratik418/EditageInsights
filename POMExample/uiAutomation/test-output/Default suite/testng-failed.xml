@@ -3,13 +3,15 @@
 <suite guice-stage="DEVELOPMENT" name="Failed suite [Default suite]">
   <test name="Default test(failed)">
     <classes>
-      <class name="com.test.automation.uiAutomation.homepage.TC_001VerifyLoginWithInvalidCredentials">
+      <class name="com.test.automation.uiAutomation.homepage.TC_005Homepage">
         <methods>
+          <include name="beforeMethod"/>
+          <include name="updateEventsVerifyImgTitleHomePage"/>
           <include name="endTest"/>
           <include name="setup"/>
-          <include name="invalidLoginCredentials"/>
+          <include name="afterMethod"/>
         </methods>
-      </class> <!-- com.test.automation.uiAutomation.homepage.TC_001VerifyLoginWithInvalidCredentials -->
+      </class> <!-- com.test.automation.uiAutomation.homepage.TC_005Homepage -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->
