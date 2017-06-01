@@ -38,10 +38,30 @@ public class HomePage {
 	// Updates and Events
 	@FindBy(xpath = "//a[contains(@href,'updates-and-events')]")
 	public WebElement updateEvent;
-	
-	//First content in Update and Events
+
+	// First content in Update and Events
 	@FindBy(xpath = "//div[@class='view-content']/div[1]//div[@class='views-field views-field-title']//a")
 	public WebElement updateEventFirst;
+
+	// Recent Articles homepage
+	@FindBy(xpath = "//a[contains(@href,'recent-article')]")
+	public WebElement recentArticlesHomepage;
+
+	// 1st Recent Articles homepage
+	@FindBy(xpath = "//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//div[@class='views-row views-row-1 views-row-odd views-row-first']//div[@class='views-field views-field-title']/span/a")
+	public WebElement recentArticlesFirstTitle;
+
+	// 1st Read More Link Click
+	@FindBy(xpath = "//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//div[@class='views-row views-row-1 views-row-odd views-row-first']//div[@class='views-field views-field-field-synopsis']/span/a")
+	public WebElement readMoreFirstLink;
+
+	// Most Popular Section Heading
+	@FindBy(xpath = "//div[@class='panel-pane pane-panels-ajax-tab-tabs']/h2/a")
+	public WebElement mostPopularSection;
+
+	// Most Popular Section Detail Page Heading
+	@FindBy(xpath = "//div[@class='panel-pane pane-panels-ajax-tab-tabs']/h2")
+	public WebElement mostPopularDetailPage;
 
 	// Login in Application Valid Credentials
 	public void clickMenu(WebElement mainMenu, WebElement mainSubMenu) {

@@ -210,4 +210,319 @@ public class TC_005Homepage extends TestBase {
 		}
 	}
 
+	// Verify "Recent Article" shows the latest articles published
+	@Test
+	public void recentArticlesPublished() throws InterruptedException, ParseException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+		boolean flag1 = false;
+		// Click on Workshop Tab
+		homepage.recentArticlesHomepage.click();
+		// wait
+		wait.waitForLoad(driver);
+		// Store the date in list
+		List<Date> listDates = new ArrayList<Date>();
+		List<Date> sortDates = new ArrayList<Date>();
+		List<WebElement> elementList = driver.findElements(By.xpath("//span[@class='posted-date']"));
+		for (WebElement we : elementList) {
+			Date date = format.parse(we.getText());
+			listDates.add(date);
+			sortDates.add(date);
+
+		}
+		// Sort based on collections
+		Collections.sort(sortDates);
+		Collections.reverse(sortDates);
+		// Use iterator for checking values
+		Iterator<Date> firstDate = listDates.iterator();
+		Iterator<Date> secondDate = sortDates.iterator();
+		while (firstDate.hasNext()) {
+			Date date = firstDate.next();
+			// recreate iterator for second list
+
+			Date sdate = secondDate.next();
+			if (date.equals(sdate)) {
+				flag1 = true;
+			} else {
+				flag1 = false;
+				break;
+			}
+		}
+		// Final Condition
+		if (flag1) {
+			assertTrue(true, "Recent Articles shows the latest content");
+		} else {
+			assertTrue(false, "Recent Articles does not show the latest content");
+		}
+	}
+
+	// Verify "Recent Article" should contain Title, under, By, Views, Add a
+	// comment, rating, social icons, Image and teaser with read more link
+	@Test
+	public void verifyRecentArticlesTab() throws InterruptedException, ParseException {
+		boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false,
+				flag8 = false;
+		// Verify presence of Title
+		List<WebElement> noOfColumnsTitle;
+		noOfColumnsTitle = driver.findElements(By.xpath(
+				"//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//div[@class='views-field views-field-title']/span/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsTitle) {
+			// set flag when title is found
+			if (cell.getAttribute("href").contains("/insights/")) {
+				flag1 = true;
+			} else {
+				flag1 = false;
+				break;
+			}
+		}
+
+		// Verify presence of Under, By, Views
+		List<WebElement> noOfColumnsFeatures;
+		noOfColumnsFeatures = driver.findElements(By.xpath(
+				"//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//div[@class='views-field views-field-nothing-1']/span"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsFeatures) {
+			// set flag when title is found
+			if (cell.getText().contains("Views") && cell.getText().contains("By") && cell.getText().contains("Under")) {
+				flag2 = true;
+			} else {
+				flag2 = false;
+				break;
+			}
+		}
+
+		// Verify presence of Comments
+		List<WebElement> noOfColumnsComment;
+		noOfColumnsComment = driver.findElements(By.xpath(
+				"//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//span[@class='comment-counting']/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsComment) {
+			// set flag when title is found
+			if (cell.getText().contains("Add a comment")) {
+				flag3 = true;
+			} else {
+				flag3 = false;
+				break;
+			}
+		}
+
+		// Verify presence of Average
+		List<WebElement> noOfColumnsAverage;
+		noOfColumnsAverage = driver.findElements(By.xpath(
+				"//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//div[@class='fivestar-summary fivestar-summary-average-count']/span"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsAverage) {
+			// set flag when title is found
+			if (cell.getText().contains("Average")) {
+				flag4 = true;
+			} else {
+				flag4 = false;
+				break;
+			}
+		}
+		// Verify Presence of rating
+		List<WebElement> noOfColumnsStars;
+		noOfColumnsStars = driver.findElements(By.xpath(
+				"//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//div[contains(@class, 'star star-')]/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsStars) {
+			// set flag when title is found
+			if (cell.getText().contains("Give it")) {
+				flag5 = true;
+			} else {
+				flag5 = false;
+				break;
+			}
+		}
+		// Verify Presence of Images
+		List<WebElement> noOfColumnsImages;
+		noOfColumnsImages = driver.findElements(By.xpath(
+				"//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//span[@class='thumbnail']//img"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsImages) {
+			// set flag when title is found
+			if (cell.getAttribute("src").contains("/sites/default/files/styles/")) {
+				flag6 = true;
+			} else {
+				flag6 = false;
+				break;
+			}
+		}
+		// Verify presence of Read More link
+		List<WebElement> noOfColumnsReadMore;
+		noOfColumnsReadMore = driver.findElements(By.xpath(
+				"//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//div[@class='views-field views-field-field-synopsis']/span/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsReadMore) {
+			// set flag when title is found
+			if (cell.getText().contains("Read More")) {
+				flag7 = true;
+			} else {
+				flag7 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of Images
+		List<WebElement> noOfColumnsSocialMediaIcons;
+		noOfColumnsSocialMediaIcons = driver.findElements(By.xpath(
+				"//div[contains(@class, 'view view-article view-id-article view-display-id-panel_pane_3')]//div[@class='addthis_toolbox addthis_default_style']/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsSocialMediaIcons) {
+			// set flag when title is found
+			if (cell.getAttribute("href").contains("www.addthis.com/bookmark.php?v=")) {
+				flag8 = true;
+			} else {
+				flag8 = false;
+				break;
+			}
+		}
+		// Final Condition
+		if (flag1 && flag2 && flag3 && flag4 && flag5 && flag6 && flag7 && flag8) {
+			assertTrue(true,
+					"Recent Article contains Title, under, By, Views, Add a comment, rating, social icons, Image and teaser with read more link");
+		} else {
+			assertTrue(false,
+					"Recent Article does not contains Title, under, By, Views, Add a comment, rating, social icons, Image and teaser with read more link");
+		}
+	}
+
+	// Verify click on Read More link in Recent Articles user is directed to
+	// Detailed page
+	@Test
+	public void verifyReadMoreLinkClickRecentArticles() throws InterruptedException, ParseException {
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// First Title in the Recent Articles Section Homepage
+		String title = homepage.recentArticlesFirstTitle.getText();
+		// Click on the First Read More link
+		homepage.readMoreFirstLink.click();
+		// wait
+		wait.waitForLoad(driver);
+		// Verify title on the Detailed page
+		String mainTitle = searchpage.askCommunityHeading.getText();
+		// Verify Final Condition
+		if (title.equalsIgnoreCase(mainTitle)) {
+			assertTrue(true, "Read More link in Recent Articles user is directed to the Detailed page");
+		} else {
+			assertTrue(false, "Read More link in Recent Articles user is not directed to the Detailed page");
+		}
+	}
+
+	// Verify clicking on "Recent Article" should take to the detailed "Recent
+	// Article' page
+	@Test
+	public void recentArticleHeadingRedirection() throws InterruptedException, ParseException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// Store the title in String
+		String title = homepage.recentArticlesHomepage.getText();
+		// Click on Workshop Tab
+		homepage.recentArticlesHomepage.click();
+		// wait
+		wait.waitForLoad(driver);
+		// Store the main title in String
+		String mainTitle = searchpage.askCommunityHeading.getText();
+		// Verify Final Condition
+		if (title.equalsIgnoreCase(mainTitle)) {
+			assertTrue(true, "On clicking on Recent Article we are directed to the  detailed Recent Article page");
+		} else {
+			assertTrue(false, "On clicking on Recent Article we are not directed to the  detailed Recent Article page");
+		}
+	}
+
+	// Verify clicking on "Article" under "Recent Article" takes to Detailed
+	// Article page
+	@Test
+	public void recentArticleTitleRedirection() throws InterruptedException, ParseException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// Store the title in String
+		String title = homepage.recentArticlesFirstTitle.getText();
+		// Click on Workshop Tab
+		homepage.recentArticlesFirstTitle.click();
+		// wait
+		wait.waitForLoad(driver);
+		// Store the main title in String
+		String mainTitle = searchpage.askCommunityHeading.getText();
+		// Verify Final Condition
+		if (title.equalsIgnoreCase(mainTitle)) {
+			assertTrue(true, "On clicking  Recent Article Content titl we are directed to the  Detailed Article page");
+		} else {
+			assertTrue(false,
+					"On clicking  Recent Article Content titl we are not directed to the  Detailed Article page");
+		}
+	}
+
+	// Verify "Most Popular" section should have 3 tabs "This Week", "This
+	// Month" and "All Time"
+	@Test
+	public void verifyMostpopularSectionTabs() throws InterruptedException, ParseException {
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		boolean flag1 = false, flag2 = false, flag3 = false;
+		// Store the Title
+		String title = homepage.mostPopularSection.getText();
+		// Verify Condition
+		if (title.equalsIgnoreCase("most popular")) {
+			flag1 = true;
+		} else {
+			flag1 = false;
+		}
+		// Verify number of tabs
+		List<WebElement> noOfTabs;
+		noOfTabs = driver.findElements(By.xpath("//div[@class='panel-pane pane-panels-ajax-tab-tabs']//ul/li"));
+		int size = noOfTabs.size();
+		if (size == 3) {
+			flag2 = true;
+		} else {
+			flag2 = false;
+		}
+		// Verify tab Names
+		for (WebElement cell : noOfTabs) {
+			// set flag when title is found
+			if (cell.getText().equalsIgnoreCase("This Week") || cell.getText().equalsIgnoreCase("This Month")
+					|| cell.getText().equalsIgnoreCase("All Time")) {
+				flag3 = true;
+			} else {
+				flag3 = false;
+				break;
+			}
+		}
+		// Final Condition
+		if (flag1 && flag2 && flag3) {
+			assertTrue(true, "Most Popular section contains 3 tabs This Week, This Month and All Time");
+		} else {
+			assertTrue(false, "Most Popular section does not contain 3 tabs This Week, This Month and All Time");
+		}
+
+	}
+
+	// Verify clicking on "Most Popular" should take user to detailed page
+	@Test
+	public void mostPopularHeaderRedirection() throws InterruptedException, ParseException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// Click on Most Popular Tab
+		homepage.mostPopularSection.click();
+		// wait
+		wait.waitForLoad(driver);
+		// Store the main title in String
+		String mainTitle = homepage.mostPopularDetailPage.getText();
+		// Verify Final Condition
+		if (mainTitle.equalsIgnoreCase("popular articles")) {
+			assertTrue(true, "On clicking on Recent Article we are directed to the  detailed Recent Article page");
+		} else {
+			assertTrue(false, "On clicking on Recent Article we are not directed to the  detailed Recent Article page");
+		}
+	}
+
 }
