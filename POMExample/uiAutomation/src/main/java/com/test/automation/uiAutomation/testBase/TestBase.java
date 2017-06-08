@@ -42,8 +42,8 @@ public class TestBase {
 	public Properties OR = new Properties();
 	public static ExtentReports extent;
 	public static ExtentTest test;
-	public static ExtentTest testclass;
-	
+	public static ExtentTest testClass;
+
 	public void loadData() throws IOException {
 
 		File file = new File(System.getProperty("user.dir")
@@ -55,7 +55,8 @@ public class TestBase {
 	// To fetch the URL and browser
 	public void init() throws IOException {
 		loadData();
-		extent = new ExtentReports(System.getProperty("user.dir") +"\\src\\main\\java\\com\\test\\automation\\uiAutomation\\report\\TestHtmlReport.html", false);
+		extent = new ExtentReports(System.getProperty("user.dir")
+				+ "\\src\\main\\java\\com\\test\\automation\\uiAutomation\\report\\TestHtmlReport.html", false);
 		selectBrowser(OR.getProperty("browser"));
 		// lis = new Listener(driver);
 		getUrl(OR.getProperty("url"));
@@ -84,11 +85,9 @@ public class TestBase {
 		// Maximize
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
-		Alert alert = driver.switchTo().alert() ;
-		alert.authenticateUsing(new UserAndPassword("editageTest","editgeT$@$!"));
-		driver.switchTo().defaultContent() ;
 	}
 
+	//To get input from excel
 	public String[][] getData(String excelName, String sheetName) {
 		String path = System.getProperty("user.dir") + "\\src\\main\\java\\com\\test\\automation\\uiAutomation\\data\\"
 				+ excelName;
@@ -123,7 +122,7 @@ public class TestBase {
 		}
 		return destFile.toString();
 	}
-	
+
 	
 	public static void updateResult(int indexSI, String testCaseName, String testCaseStatus, String scriptName)
 			throws IOException {
@@ -194,53 +193,62 @@ public class TestBase {
 		bw1.close();
 
 	}
-	
-	public void log(String data){
-		//log.info(data);
+
+	public void log(String data) {
+		// log.info(data);
 		Reporter.log(data);
 		test.log(LogStatus.INFO, data);
 	}
-	
-	public void getresult(ITestResult result){
-		if(result.getStatus()==ITestResult.SUCCESS){
-			testclass = extent.startTest(result.getName());
-			test.log(LogStatus.PASS,test.appendChild(testclass)+" test is passed");
-			
-		}
-		else if(result.getStatus()==ITestResult.SKIP){
-			test.log(LogStatus.SKIP,test.appendChild(testclass)+" test is skipped and skip reason is:-"+result.getThrowable());
-		}
-		else if(result.getStatus()==ITestResult.FAILURE){
-			test.log(LogStatus.ERROR,test.appendChild(testclass)+" test is failed"+ result.getThrowable());
-			String screen = captureScreen("");
-			test.log(LogStatus.FAIL,test.addScreenCapture(screen));
-		}
-		else if(result.getStatus()==ITestResult.STARTED){
-			test.log(LogStatus.INFO,test.appendChild(testclass)+" test is started");
-		}
-	}
-	
-	@AfterMethod()
-	public void afterMethod(ITestResult result){
-		getresult(result);
-	}
-	
-	@BeforeMethod()
-	public void beforeMethod(Method result){
-		test = extent.startTest(result.getClass().getSimpleName());
-	}
-	
 
-	@AfterClass(alwaysRun=true)
+	
+	//Display Result
+	public void getresult(ITestResult result) {
+		if (result.getStatus() == ITestResult.SUCCESS) {
+			//when successful
+			test = extent.startTest(result.getName());
+			testClass.appendChild(test);
+			test.log(LogStatus.PASS, test.getTest().getName() + "   test is passed");
+		} else if (result.getStatus() == ITestResult.SKIP) {
+			//when skipped
+			test = extent.startTest(result.getName());
+			testClass.appendChild(test);
+			test.log(LogStatus.SKIP,
+					test.getTest().getName() + "   test is skipped and skip reason is:-" + result.getThrowable());
+		} else if (result.getStatus() == ITestResult.FAILURE) {
+			//when failed
+			test = extent.startTest(result.getName());
+			testClass.appendChild(test);
+			test.log(LogStatus.ERROR, test.getTest().getName() + "   test is failed" + result.getThrowable());
+			String screen = captureScreen("");
+			test.log(LogStatus.FAIL, test.addScreenCapture(screen));
+		} else if (result.getStatus() == ITestResult.STARTED) {
+			//when started
+			test = extent.startTest(result.getName());
+			testClass.appendChild(test);
+			test.log(LogStatus.INFO, test.getTest().getName() + "   test is started");
+		}
+	}
+
+	@AfterMethod()
+	public void afterMethod(ITestResult result) {
+		getresult(result);
+		extent.endTest(test);
+	}
+
+	@BeforeMethod()
+	public void beforeMethod() {
+		testClass = extent.startTest(getClass().getSimpleName());
+	}
+
+	@AfterClass(alwaysRun = true)
 	public void endTest() {
 		closeBrowser();
 	}
-	
-	public void closeBrowser(){
+
+	public void closeBrowser() {
 		driver.quit();
-		extent.endTest(test);
+		extent.endTest(testClass);
 		extent.flush();
 	}
-
 
 }
