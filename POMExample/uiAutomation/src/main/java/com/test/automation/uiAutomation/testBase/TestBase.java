@@ -13,11 +13,13 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.security.UserAndPassword;
 import org.openqa.selenium.support.PageFactory;
 import org.testng.ITestResult;
 import org.testng.Reporter;
@@ -40,7 +42,8 @@ public class TestBase {
 	public Properties OR = new Properties();
 	public static ExtentReports extent;
 	public static ExtentTest test;
-
+	public static ExtentTest testclass;
+	
 	public void loadData() throws IOException {
 
 		File file = new File(System.getProperty("user.dir")
@@ -81,6 +84,9 @@ public class TestBase {
 		// Maximize
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+		Alert alert = driver.switchTo().alert() ;
+		alert.authenticateUsing(new UserAndPassword("editageTest","editgeT$@$!"));
+		driver.switchTo().defaultContent() ;
 	}
 
 	public String[][] getData(String excelName, String sheetName) {
@@ -197,18 +203,20 @@ public class TestBase {
 	
 	public void getresult(ITestResult result){
 		if(result.getStatus()==ITestResult.SUCCESS){
-			test.log(LogStatus.PASS,result.getName()+" test is passed");
+			testclass = extent.startTest(result.getName());
+			test.log(LogStatus.PASS,test.appendChild(testclass)+" test is passed");
+			
 		}
 		else if(result.getStatus()==ITestResult.SKIP){
-			test.log(LogStatus.SKIP,result.getName()+" test is skipped and skip reason is:-"+result.getThrowable());
+			test.log(LogStatus.SKIP,test.appendChild(testclass)+" test is skipped and skip reason is:-"+result.getThrowable());
 		}
 		else if(result.getStatus()==ITestResult.FAILURE){
-			test.log(LogStatus.ERROR,result.getName()+" test is failed"+ result.getThrowable());
+			test.log(LogStatus.ERROR,test.appendChild(testclass)+" test is failed"+ result.getThrowable());
 			String screen = captureScreen("");
 			test.log(LogStatus.FAIL,test.addScreenCapture(screen));
 		}
 		else if(result.getStatus()==ITestResult.STARTED){
-			test.log(LogStatus.INFO,result.getName()+" test is started");
+			test.log(LogStatus.INFO,test.appendChild(testclass)+" test is started");
 		}
 	}
 	
@@ -219,7 +227,7 @@ public class TestBase {
 	
 	@BeforeMethod()
 	public void beforeMethod(Method result){
-		test = extent.startTest(result.getName());
+		test = extent.startTest(result.getClass().getSimpleName());
 	}
 	
 

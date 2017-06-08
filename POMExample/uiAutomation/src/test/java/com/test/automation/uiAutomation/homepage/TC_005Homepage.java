@@ -519,9 +519,9 @@ public class TC_005Homepage extends TestBase {
 		String mainTitle = homepage.mostPopularDetailPage.getText();
 		// Verify Final Condition
 		if (mainTitle.equalsIgnoreCase("popular articles")) {
-			assertTrue(true, "On clicking on Recent Article we are directed to the  detailed Recent Article page");
+			assertTrue(true, "On clicking on Most Popular section we are directed to the  detailed Most Popular Articles page");
 		} else {
-			assertTrue(false, "On clicking on Recent Article we are not directed to the  detailed Recent Article page");
+			assertTrue(false, "On clicking on Most Popular section we are not getting directed to the  detailed Most Popular Articles page");
 		}
 	}
 
