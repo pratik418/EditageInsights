@@ -20,6 +20,7 @@ public class TC_004SearchPage extends TestBase {
 	@BeforeTest
 	public void setup() throws IOException {
 		init();
+		testClass = extent.startTest(getClass().getSimpleName());
 	}
 
 	@Test
@@ -40,7 +41,7 @@ public class TC_004SearchPage extends TestBase {
 		// Loop will rotate till expected title is found.
 		for (WebElement cell : noOfColumns) {
 			// set flag when title is found
-			if (cell.getText().contains("question")) {
+			if (cell.getText().contains("123")) {
 				flag1 = true;
 			}
 		}
@@ -53,7 +54,7 @@ public class TC_004SearchPage extends TestBase {
 	}
 
 	// Verify Search Filter on basis of Filter By Format
-	@Test
+	@Test(enabled=false)
 	public void searchFilterByFormat() throws InterruptedException {
 
 		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
@@ -329,7 +330,7 @@ public class TC_004SearchPage extends TestBase {
 
 	// Verify that when clicked on any search results we are redirected to
 	// appropriate detailed page
-	@Test
+	@Test(enabled=false)
 	public void searchRedirectDetailPage() throws InterruptedException {
 
 		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
@@ -357,7 +358,7 @@ public class TC_004SearchPage extends TestBase {
 
 	// Verify when we click on Ask community link we are redirected to Ask A
 	// Question page
-	@Test
+	@Test(enabled=false)
 	public void askCommunityLink() throws InterruptedException {
 
 		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
@@ -381,7 +382,7 @@ public class TC_004SearchPage extends TestBase {
 	}
 
 	// Verify proper message is shown when no results are found.
-	@Test
+	@Test(enabled=false)
 	public void noSearchResultsFound() throws InterruptedException {
 
 		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);

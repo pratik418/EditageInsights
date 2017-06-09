@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.BeforeClass;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -87,7 +88,7 @@ public class TestBase {
 		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
 	}
 
-	//To get input from excel
+	// To get input from excel
 	public String[][] getData(String excelName, String sheetName) {
 		String path = System.getProperty("user.dir") + "\\src\\main\\java\\com\\test\\automation\\uiAutomation\\data\\"
 				+ excelName;
@@ -123,7 +124,6 @@ public class TestBase {
 		return destFile.toString();
 	}
 
-	
 	public static void updateResult(int indexSI, String testCaseName, String testCaseStatus, String scriptName)
 			throws IOException {
 
@@ -200,49 +200,53 @@ public class TestBase {
 		test.log(LogStatus.INFO, data);
 	}
 
-	
-	//Display Result
+	// Display Result
 	public void getresult(ITestResult result) {
+		test = extent.startTest(result.getName());
+		testClass.appendChild(test);
 		if (result.getStatus() == ITestResult.SUCCESS) {
-			//when successful
-			test = extent.startTest(result.getName());
-			testClass.appendChild(test);
+			// when successful
 			test.log(LogStatus.PASS, test.getTest().getName() + "   test is passed");
 		} else if (result.getStatus() == ITestResult.SKIP) {
-			//when skipped
-			test = extent.startTest(result.getName());
-			testClass.appendChild(test);
+			// when skipped
 			test.log(LogStatus.SKIP,
-					test.getTest().getName() + "   test is skipped and skip reason is:-" + result.getThrowable());
+					test.getTest().getName() + "   test is skipped and the reason is:-" + result.getThrowable());
 		} else if (result.getStatus() == ITestResult.FAILURE) {
-			//when failed
-			test = extent.startTest(result.getName());
-			testClass.appendChild(test);
-			test.log(LogStatus.ERROR, test.getTest().getName() + "   test is failed" + result.getThrowable());
+			// when failed
+			test.log(LogStatus.ERROR,
+					test.getTest().getName() + "   test is failed and the reason is" + result.getThrowable());
 			String screen = captureScreen("");
 			test.log(LogStatus.FAIL, test.addScreenCapture(screen));
 		} else if (result.getStatus() == ITestResult.STARTED) {
-			//when started
-			test = extent.startTest(result.getName());
-			testClass.appendChild(test);
+			// when started
 			test.log(LogStatus.INFO, test.getTest().getName() + "   test is started");
 		}
 	}
 
 	@AfterMethod()
-	public void afterMethod(ITestResult result) {
+	public void afterMethod(ITestResult result) throws IOException {
 		getresult(result);
 		extent.endTest(test);
+		driver.quit();selectBrowser(OR.getProperty("browser"));
+		// lis = new Listener(driver);
+		getUrl(OR.getProperty("url"));
+		
 	}
 
 	@BeforeMethod()
-	public void beforeMethod() {
-		testClass = extent.startTest(getClass().getSimpleName());
+	public void beforeMethod(ITestResult result) throws IOException {
+		//test = extent.startTest(result.getName());
+		
 	}
 
 	@AfterClass(alwaysRun = true)
 	public void endTest() {
 		closeBrowser();
+	}
+
+	@BeforeClass()
+	public void beforeClass() {
+		
 	}
 
 	public void closeBrowser() {
