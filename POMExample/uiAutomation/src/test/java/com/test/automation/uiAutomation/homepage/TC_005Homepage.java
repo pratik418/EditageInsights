@@ -520,9 +520,524 @@ public class TC_005Homepage extends TestBase {
 		String mainTitle = homepage.mostPopularDetailPage.getText();
 		// Verify Final Condition
 		if (mainTitle.equalsIgnoreCase("popular articles")) {
-			assertTrue(true, "On clicking on Most Popular section we are directed to the  detailed Most Popular Articles page");
+			assertTrue(true,
+					"On clicking on Most Popular section we are directed to the  detailed Most Popular Articles page");
 		} else {
-			assertTrue(false, "On clicking on Most Popular section we are not getting directed to the  detailed Most Popular Articles page");
+			assertTrue(false,
+					"On clicking on Most Popular section we are not getting directed to the  detailed Most Popular Articles page");
+		}
+	}
+
+	// Verify "This Week tab" in Most Popular Section contains latest 4 contents
+	// with Title,
+	// under, By, Views, Add a comment, rating, social icons, Image and teaser
+	// with read more link, should display according to the global views
+	@Test
+	public void verifyThisWeekContents() throws InterruptedException, ParseException {
+		boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false,
+				flag8 = false, flag9 = false;
+		// Verify number of tabs
+		List<WebElement> noOfTabs;
+		noOfTabs = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-weekly-')]//div[@class='views-field views-field-title']//a"));
+		int size = noOfTabs.size();
+		if (size == 4) {
+			flag1 = true;
+		} else {
+			flag1 = false;
+		}
+		// Verify tab Names
+		for (WebElement cell : noOfTabs) {
+			// set flag when title is found
+			if (cell.getAttribute("href").contains("/insights/")) {
+				flag2 = true;
+			} else {
+				flag2 = false;
+				break;
+			}
+		}
+		// Verify number of Under and Views
+		List<WebElement> noOfContentUnder;
+		noOfContentUnder = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-weekly-')]//div[@class='views-field views-field-nothing']/span"));
+		// Verify tab Names
+		for (WebElement cell : noOfContentUnder) {
+			// set flag when title is found
+			if (cell.getText().contains("Under") && cell.getText().contains("Views")) {
+				flag3 = true;
+			} else {
+				flag3 = false;
+				break;
+			}
+		}
+		// Verify number of Under and Views
+		List<WebElement> noOfContentBy;
+		noOfContentBy = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-weekly-')]//div[@class='views-field views-field-nothing']/span[1]/span[1]"));
+		// Verify tab Names
+		for (WebElement cell : noOfContentBy) {
+			// set flag when title is found
+			if (cell.getText().contains("By")) {
+				flag4 = true;
+			} else {
+				flag4 = false;
+				break;
+			}
+		}
+
+		// Verify number of Add comments
+		List<WebElement> noOfComments;
+		noOfComments = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-weekly-')]//div[@class='views-field views-field-nothing']/span[1]/span[2]/a"));
+		// Verify tab Names
+		for (WebElement cell : noOfComments) {
+			// set flag when title is found
+			if (cell.getText().contains("Add a comment")) {
+				flag5 = true;
+			} else {
+				flag5 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of rating
+		List<WebElement> noOfColumnsStars;
+		noOfColumnsStars = driver.findElements(
+				By.xpath("//div[contains(@class,'most-popular-weekly-')]//div[contains(@class, 'star star-')]/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsStars) {
+			// set flag when title is found
+			if (cell.getText().contains("Give it")) {
+				flag6 = true;
+			} else {
+				flag6 = false;
+				break;
+			}
+		}
+
+		// Verify presence of Average
+		List<WebElement> noOfColumnsAverage;
+		noOfColumnsAverage = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-weekly-')]//div[@class='fivestar-summary fivestar-summary-average-count']/span"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsAverage) {
+			// set flag when title is found
+			if (cell.getText().contains("Average")) {
+				flag7 = true;
+			} else {
+				flag7 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of Images
+		List<WebElement> noOfColumnsImages;
+		noOfColumnsImages = driver.findElements(
+				By.xpath("//div[contains(@class,'most-popular-weekly-')]//span[@class='thumbnail']//img"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsImages) {
+			// set flag when title is found
+			if (cell.getAttribute("src").contains("/sites/default/files/styles/")) {
+				flag8 = true;
+			} else {
+				flag8 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of Images
+		List<WebElement> noOfColumnsSocialMediaIcons;
+		noOfColumnsSocialMediaIcons = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-weekly-')]//div[@class='views-field views-field-field-social-sharing']//a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsSocialMediaIcons) {
+			// set flag when title is found
+			if (cell.getAttribute("href").contains("www.addthis.com/bookmark.php?v=")) {
+				flag9 = true;
+			} else {
+				flag9 = false;
+				break;
+			}
+		}
+		// Final Condition
+		if (flag1 && flag2 && flag3 && flag4 && flag5 && flag6 && flag7 && flag8 && flag9) {
+			assertTrue(true,
+					"Most Popular-This Week contains Title, under, By, Views, Add a comment, rating, social icons, and Images");
+		} else {
+			assertTrue(false,
+					"Most Popular-This Week does not contains Title, under, By, Views, Add a comment, rating, social icons, and Images");
+		}
+	}
+
+	// Verify "This Month tab" in Most Popular Section contains latest 4
+	// contents
+	// with Title,
+	// under, By, Views, Add a comment, rating, social icons, Image and teaser
+	// with read more link, should display according to the global views
+	@Test
+	public void verifyThisMonthContents() throws InterruptedException, ParseException {
+		boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false,
+				flag8 = false, flag9 = false;
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// Click on Most Popular Tab
+		homepage.mostPopularThisMonthTab.click();
+		// wait
+		wait.waitForElementToBeInvisible(By.xpath("//li[@class='list-2']"), 30);
+		// Verify number of tabs
+		List<WebElement> noOfTabs;
+		noOfTabs = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-monthly-')]//div[@class='views-field views-field-title']//a"));
+		int size = noOfTabs.size();
+		if (size == 4) {
+			flag1 = true;
+		} else {
+			flag1 = false;
+		}
+		// Verify tab Names
+		for (WebElement cell : noOfTabs) {
+			// set flag when title is found
+			if (cell.getAttribute("href").contains("/insights/")) {
+				flag2 = true;
+			} else {
+				flag2 = false;
+				break;
+			}
+		}
+		// Verify number of Under and Views
+		List<WebElement> noOfContentUnder;
+		noOfContentUnder = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-monthly-')]//div[@class='views-field views-field-nothing']/span"));
+		// Verify tab Names
+		for (WebElement cell : noOfContentUnder) {
+			// set flag when title is found
+			if (cell.getText().contains("Under") && cell.getText().contains("Views")) {
+				flag3 = true;
+			} else {
+				flag3 = false;
+				break;
+			}
+		}
+		// Verify number of Under and Views
+		List<WebElement> noOfContentBy;
+		noOfContentBy = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-monthly-')]//div[@class='views-field views-field-nothing']/span[1]/span[1]"));
+		// Verify tab Names
+		for (WebElement cell : noOfContentBy) {
+			// set flag when title is found
+			if (cell.getText().contains("By")) {
+				flag4 = true;
+			} else {
+				flag4 = false;
+				break;
+			}
+		}
+
+		// Verify number of Add comments
+		List<WebElement> noOfComments;
+		noOfComments = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-monthly-')]//div[@class='views-field views-field-nothing']/span[1]/span[2]/a"));
+		// Verify tab Names
+		for (WebElement cell : noOfComments) {
+			// set flag when title is found
+			if (cell.getText().contains("Add a comment")) {
+				flag5 = true;
+			} else {
+				flag5 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of rating
+		List<WebElement> noOfColumnsStars;
+		noOfColumnsStars = driver.findElements(
+				By.xpath("//div[contains(@class,'most-popular-monthly-')]//div[contains(@class, 'star star-')]/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsStars) {
+			// set flag when title is found
+			if (cell.getText().contains("Give it")) {
+				flag6 = true;
+			} else {
+				flag6 = false;
+				break;
+			}
+		}
+
+		// Verify presence of Average
+		List<WebElement> noOfColumnsAverage;
+		noOfColumnsAverage = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-monthly-')]//div[@class='fivestar-summary fivestar-summary-combo']/span"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsAverage) {
+			// set flag when title is found
+			if (cell.getText().contains("Average")) {
+				flag7 = true;
+			} else {
+				flag7 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of Images
+		List<WebElement> noOfColumnsImages;
+		noOfColumnsImages = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-monthly-')]//div[@class='views-field views-field-field-thumbnail']//img"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsImages) {
+			// set flag when title is found
+			if (cell.getAttribute("src").contains("/sites/default/files/styles/")) {
+				flag8 = true;
+			} else {
+				flag8 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of Images
+		List<WebElement> noOfColumnsSocialMediaIcons;
+		noOfColumnsSocialMediaIcons = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-monthly-')]//div[@class='views-field views-field-field-social-sharing']//a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsSocialMediaIcons) {
+			// set flag when title is found
+			if (cell.getAttribute("href").contains("www.addthis.com/bookmark.php?v=")) {
+				flag9 = true;
+			} else {
+				flag9 = false;
+				break;
+			}
+		}
+		// Final Condition
+		if (flag1 && flag2 && flag3 && flag4 && flag5 && flag6 && flag7 && flag8 && flag9) {
+			assertTrue(true,
+					"Most Popular-This Month contains Title, under, By, Views, Add a comment, rating, social icons, and Images");
+		} else {
+			assertTrue(false,
+					"Most Popular-This Month does not contains Title, under, By, Views, Add a comment, rating, social icons, and Images");
+		}
+	}
+
+	// Verify "All Time tab" in Most Popular Section contains latest 4 contents
+	// with Title,
+	// under, By, Views, Add a comment, rating, social icons, Image and teaser
+	// with read more link, should display according to the global views
+	@Test
+	public void verifyAllTimeContents() throws InterruptedException, ParseException {
+		boolean flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false,
+				flag8 = false, flag9 = false;
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// Click on Most Popular All Time Tab
+		homepage.mostPopularAllTimeTab.click();
+		// wait
+		wait.waitForElementToBeInvisible(By.xpath("//li[@class='list-3']"), 30);
+		// Verify number of tabs
+		List<WebElement> noOfTabs;
+		noOfTabs = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-alltime-')]//div[@class='views-field views-field-title']//a"));
+		int size = noOfTabs.size();
+		if (size == 4) {
+			flag1 = true;
+		} else {
+			flag1 = false;
+		}
+		// Verify tab Names
+		for (WebElement cell : noOfTabs) {
+			// set flag when title is found
+			if (cell.getAttribute("href").contains("/insights/")) {
+				flag2 = true;
+			} else {
+				flag2 = false;
+				break;
+			}
+		}
+		// Verify number of Under and Views
+		List<WebElement> noOfContentUnder;
+		noOfContentUnder = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-alltime-')]//div[@class='views-field views-field-nothing']/span"));
+		// Verify tab Names
+		for (WebElement cell : noOfContentUnder) {
+			// set flag when title is found
+			if (cell.getText().contains("Under") && cell.getText().contains("Views")) {
+				flag3 = true;
+			} else {
+				flag3 = false;
+				break;
+			}
+		}
+		// Verify number of Under and Views
+		List<WebElement> noOfContentBy;
+		noOfContentBy = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-alltime-')]//div[@class='views-field views-field-nothing']/span[1]/span[1]"));
+		// Verify tab Names
+		for (WebElement cell : noOfContentBy) {
+			// set flag when title is found
+			if (cell.getText().contains("By")) {
+				flag4 = true;
+			} else {
+				flag4 = false;
+				break;
+			}
+		}
+
+		// Verify number of Add comments
+		List<WebElement> noOfComments;
+		noOfComments = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-alltime-')]//div[@class='views-field views-field-nothing']/span[1]/span[2]/a"));
+		// Verify tab Names
+		for (WebElement cell : noOfComments) {
+			// set flag when title is found
+			if (cell.getText().contains("Add a comment")) {
+				flag5 = true;
+			} else {
+				flag5 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of rating
+		List<WebElement> noOfColumnsStars;
+		noOfColumnsStars = driver.findElements(
+				By.xpath("//div[contains(@class,'most-popular-alltime-')]//div[contains(@class, 'star star-')]/a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsStars) {
+			// set flag when title is found
+			if (cell.getText().contains("Give it")) {
+				flag6 = true;
+			} else {
+				flag6 = false;
+				break;
+			}
+		}
+
+		// Verify presence of Average
+		List<WebElement> noOfColumnsAverage;
+		noOfColumnsAverage = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-alltime-')]//div[@class='fivestar-summary fivestar-summary-average-count']/span"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsAverage) {
+			// set flag when title is found
+			if (cell.getText().contains("Average")) {
+				flag7 = true;
+			} else {
+				flag7 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of Images
+		List<WebElement> noOfColumnsImages;
+		noOfColumnsImages = driver.findElements(
+				By.xpath("//div[contains(@class,'most-popular-alltime-')]//span[@class='thumbnail']//img"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsImages) {
+			// set flag when title is found
+			if (cell.getAttribute("src").contains("/sites/default/files/styles/")) {
+				flag8 = true;
+			} else {
+				flag8 = false;
+				break;
+			}
+		}
+
+		// Verify Presence of Images
+		List<WebElement> noOfColumnsSocialMediaIcons;
+		noOfColumnsSocialMediaIcons = driver.findElements(By.xpath(
+				"//div[contains(@class,'most-popular-alltime-')]//div[@class='views-field views-field-field-social-sharing']//a"));
+		// Verify Presence of Images
+		for (WebElement cell : noOfColumnsSocialMediaIcons) {
+			// set flag when title is found
+			if (cell.getAttribute("href").contains("www.addthis.com/bookmark.php?v=")) {
+				flag9 = true;
+			} else {
+				flag9 = false;
+				break;
+			}
+		}
+		// Final Condition
+		if (flag1 && flag2 && flag3 && flag4 && flag5 && flag6 && flag7 && flag8 && flag9) {
+			assertTrue(true,
+					"Most Popular-All Time contains Title, under, By, Views, Add a comment, rating, social icons, and Images");
+		} else {
+			assertTrue(false,
+					"Most Popular-All Time does not contains Title, under, By, Views, Add a comment, rating, social icons, and Images");
+		}
+	}
+
+	// Verify clicking on contents in "Most Popular" should open detailed page
+	@Test
+	public void mostPopularSectionContentRedirection() throws InterruptedException, ParseException {
+
+		HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
+		explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+		// Most Popular This Week Tab Content Title
+		String titleWeek = homepage.firstTitleThisWeek.getText();
+		// Parent Window
+		String parentHandle = driver.getWindowHandle();
+		// Click on title
+		homepage.firstTitleThisWeek.click();
+		// Switch to new tab
+		for (String winHandle : driver.getWindowHandles()) {
+			driver.switchTo().window(winHandle);
+		}
+		// wait
+		wait.waitForLoad(driver);
+		// Detailed Page Title This Week
+		String maintitleWeek = searchpage.askCommunityHeading.getText();
+		// Close the tab
+		driver.close();
+		// Switch to old tab
+		driver.switchTo().window(parentHandle);
+		// Click on Most Popular Tab This Month
+		homepage.mostPopularThisMonthTab.click();
+		// wait
+		wait.waitForElementToBeInvisible(By.xpath("//li[@class='list-2']"), 30);
+		// Most Popular This Month Tab Content Title
+		String titleMonth = homepage.firstTitleThisMonth.getText();
+		// Click on title
+		homepage.firstTitleThisMonth.click();
+		// Switch to new tab
+		for (String winHandle : driver.getWindowHandles()) {
+			driver.switchTo().window(winHandle);
+		}
+		// wait
+		wait.waitForLoad(driver);
+		// Detailed Page Title This Month
+		String maintitleMonth = searchpage.askCommunityHeading.getText();
+		// Close the tab
+		driver.close();
+		// Switch to old tab
+		driver.switchTo().window(parentHandle);
+		// Click on Most Popular Tab All Time
+		homepage.mostPopularAllTimeTab.click();
+		// wait
+		wait.waitForElementToBeInvisible(By.xpath("//li[@class='list-3']"), 30);
+		// Most Popular This Month Tab Content Title
+		String titleAllTime = homepage.firstTitleAllTime.getText();
+		// Click on title
+		homepage.firstTitleAllTime.click();
+		// Switch to new tab
+		for (String winHandle : driver.getWindowHandles()) {
+			driver.switchTo().window(winHandle);
+		}
+		// wait
+		wait.waitForLoad(driver);
+		// Detailed Page Title This Month All Time
+		String maintitleAllTime = searchpage.askCommunityHeading.getText();
+		// Close the tab
+		driver.close();
+		// Switch to old tab
+		driver.switchTo().window(parentHandle);
+		// Verify Final Condition
+		if (titleWeek.equalsIgnoreCase(maintitleWeek) && titleMonth.equalsIgnoreCase(maintitleMonth)
+				&& titleAllTime.equalsIgnoreCase(maintitleAllTime)) {
+			assertTrue(true,
+					"On clicking on Most Popular Content  we are directed to the  detailed Most Popular Articles Detailed page");
+		} else {
+			assertTrue(false,
+					"On clicking on Most Popular Content  we are not directed to the  detailed Most Popular Articles Detailed page");
 		}
 	}
 

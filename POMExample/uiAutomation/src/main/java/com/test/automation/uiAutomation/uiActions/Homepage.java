@@ -62,10 +62,30 @@ public class HomePage {
 	// Most Popular Section Detail Page Heading
 	@FindBy(xpath = "//div[@class='panel-pane pane-panels-ajax-tab-tabs']/h2")
 	public WebElement mostPopularDetailPage;
-	
-	//First Title in Most Popular Section
+
+	// First Title in Most Popular Section
 	@FindBy(xpath = "//div[contains(@class,'view view-most-popular- view-id-most_popular_ view-display-id-panel_pane_2 view-dom-id')]//div[@class='views-row views-row-1']/div[@class='views-field views-field-title']//a")
 	public WebElement mostPopularFirstTitle;
+
+	// Most Popular This Month tab
+	@FindBy(xpath = "//li[@class='list-2']/a")
+	public WebElement mostPopularThisMonthTab;
+
+	// Most Popular All Time tab
+	@FindBy(xpath = "//li[@class='list-3']/a")
+	public WebElement mostPopularAllTimeTab;
+
+	// First Title This Week Tab
+	@FindBy(xpath = "//div[@class='most-popular-weekly-1']/div[@class='views-row views-row-1']/div[@class='views-field views-field-title']//a")
+	public WebElement firstTitleThisWeek;
+
+	// First Title This Month Tab
+	@FindBy(xpath = "//div[@class='most-popular-monthly-1']/div[@class='views-row views-row-1']/div[@class='views-field views-field-title']//a")
+	public WebElement firstTitleThisMonth;
+
+	// First Title All Time Tab
+	@FindBy(xpath = "//div[@class='most-popular-alltime-1']/div[@class='views-row views-row-1']/div[@class='views-field views-field-title']//a")
+	public WebElement firstTitleAllTime;
 
 	// Login in Application Valid Credentials
 	public void clickMenu(WebElement mainMenu, WebElement mainSubMenu) {

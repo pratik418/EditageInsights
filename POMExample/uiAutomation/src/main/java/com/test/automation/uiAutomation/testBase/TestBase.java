@@ -127,6 +127,10 @@ public class TestBase {
 		if (result.getStatus() == ITestResult.SUCCESS) {
 			// when successful
 			test.log(LogStatus.PASS, test.getTest().getName() + "   test is passed");
+			String screen = captureScreen("");
+			String screenshot = "<a href='" + screen
+					+ "' target='_blank' style='font-weight: bold;color:green;text-decoration: underline;'>Passed Test Case Screenshot </a>";
+			test.log(LogStatus.PASS, screenshot);
 		} else if (result.getStatus() == ITestResult.SKIP) {
 			// when skipped
 			test.log(LogStatus.SKIP,
@@ -137,7 +141,7 @@ public class TestBase {
 					test.getTest().getName() + "   test is failed and the reason is" + result.getThrowable());
 			String screen = captureScreen("");
 			String screenshot = "<a href='" + screen
-					+ "' target='_blank' style='color:red;text-decoration: underline;'> Screenshot </a>";
+					+ "' target='_blank' style='font-weight: bold;color:red;text-decoration: underline;'>Failed Test Case Screenshot </a>";
 			test.log(LogStatus.FAIL, screenshot);
 		} else if (result.getStatus() == ITestResult.STARTED) {
 			// when started
