@@ -12,7 +12,6 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.test.automation.uiAutomation.testBase.TestBase;
-import com.test.automation.uiAutomation.uiActions.LoginRegister;
 import com.test.automation.uiAutomation.uiActions.Searchpage;
 
 public class TC_004SearchPage extends TestBase {
@@ -41,7 +40,7 @@ public class TC_004SearchPage extends TestBase {
 		// Loop will rotate till expected title is found.
 		for (WebElement cell : noOfColumns) {
 			// set flag when title is found
-			if (cell.getText().contains("123")) {
+			if (cell.getText().contains("question")) {
 				flag1 = true;
 			}
 		}
@@ -54,7 +53,7 @@ public class TC_004SearchPage extends TestBase {
 	}
 
 	// Verify Search Filter on basis of Filter By Format
-	@Test(enabled=false)
+	@Test
 	public void searchFilterByFormat() throws InterruptedException {
 
 		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
@@ -330,7 +329,7 @@ public class TC_004SearchPage extends TestBase {
 
 	// Verify that when clicked on any search results we are redirected to
 	// appropriate detailed page
-	@Test(enabled=false)
+	@Test
 	public void searchRedirectDetailPage() throws InterruptedException {
 
 		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
@@ -358,7 +357,7 @@ public class TC_004SearchPage extends TestBase {
 
 	// Verify when we click on Ask community link we are redirected to Ask A
 	// Question page
-	@Test(enabled=false)
+	@Test
 	public void askCommunityLink() throws InterruptedException {
 
 		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
@@ -382,7 +381,7 @@ public class TC_004SearchPage extends TestBase {
 	}
 
 	// Verify proper message is shown when no results are found.
-	@Test(enabled=false)
+	@Test
 	public void noSearchResultsFound() throws InterruptedException {
 
 		Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);

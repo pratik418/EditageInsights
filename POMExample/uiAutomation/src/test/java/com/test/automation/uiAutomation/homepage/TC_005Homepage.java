@@ -29,6 +29,7 @@ public class TC_005Homepage extends TestBase {
 	@BeforeTest
 	public void setup() throws IOException {
 		init();
+		testClass = extent.startTest(getClass().getSimpleName());
 	}
 
 	// Verify when we click on "Get Your Copy Now" unauthenticated user is

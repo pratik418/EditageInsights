@@ -16,6 +16,7 @@ public class TC_001VerifyLoginWithInvalidCredentials extends TestBase {
 	@BeforeTest
 	public void setup() throws IOException {
 		init();
+		testClass = extent.startTest(getClass().getSimpleName());
 	}
 
 	@Test

@@ -18,6 +18,7 @@ public class TC_003RegisterUser extends TestBase {
 	@BeforeTest
 	public void setup() throws IOException {
 		init();
+		testClass = extent.startTest(getClass().getSimpleName());
 	}
 
 	// Verify anonymous user should be able to register
