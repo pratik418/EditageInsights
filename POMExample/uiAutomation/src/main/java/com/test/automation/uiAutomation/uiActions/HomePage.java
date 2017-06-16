@@ -87,6 +87,14 @@ public class HomePage {
 	@FindBy(xpath = "//div[@class='most-popular-alltime-1']/div[@class='views-row views-row-1']/div[@class='views-field views-field-title']//a")
 	public WebElement firstTitleAllTime;
 
+	// Interview Featured Block Title
+	@FindBy(xpath = "//div[@class='panel-pane pane-views-panes pane-experts-panel-pane-1']/h2/a")
+	public WebElement featuredInterviewTitle;
+
+	// Interview Featured Block Content Title
+	@FindBy(xpath = "//div[@class='panel-pane pane-views-panes pane-experts-panel-pane-1']//h2[@class='featured_title']/a")
+	public WebElement featuredInterviewContentTitle;
+
 	// Login in Application Valid Credentials
 	public void clickMenu(WebElement mainMenu, WebElement mainSubMenu) {
 		wait.waitForLoad(driver);

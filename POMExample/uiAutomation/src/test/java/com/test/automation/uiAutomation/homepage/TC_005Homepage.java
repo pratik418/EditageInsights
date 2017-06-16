@@ -1040,5 +1040,20 @@ public class TC_005Homepage extends TestBase {
 					"On clicking on Most Popular Content  we are not directed to the  detailed Most Popular Articles Detailed page");
 		}
 	}
+	
+	// Verify featured Interview block should be shown
+		@Test
+		public void verifyFeaturedInterviewBlock() throws InterruptedException, ParseException {
+
+			HomePage homepage = PageFactory.initElements(driver, HomePage.class);
+			Searchpage searchpage = PageFactory.initElements(driver, Searchpage.class);
+			explicitWait wait = PageFactory.initElements(driver, explicitWait.class);
+			// Interview Title
+			String title = homepage.featuredInterviewTitle.getText();
+			//Content Title in interview Block
+			String contentTitle = homepage.featuredInterviewContentTitle.getText();
+			homepage.featuredInterviewTitle.click();
+			String mainTitle = searchpage.askCommunityHeading.getText();
+		}
 
 }
